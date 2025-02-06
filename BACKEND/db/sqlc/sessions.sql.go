@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const createSession = `-- name: CreateSession :exec
+const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (user_id, token, expires_at, token_block)
 VALUES ($1, $2, $3, false) 
 RETURNING id, user_id, token, created_at, expires_at, token_block
@@ -25,9 +25,18 @@ type CreateSessionParams struct {
 	ExpiresAt time.Time     `db:"expires_at" json:"expires_at"`
 }
 
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) error {
-	_, err := q.db.ExecContext(ctx, createSession, arg.UserID, arg.Token, arg.ExpiresAt)
-	return err
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
+	row := q.db.QueryRowContext(ctx, createSession, arg.UserID, arg.Token, arg.ExpiresAt)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.TokenBlock,
+	)
+	return i, err
 }
 
 const deleteSessionByToken = `-- name: DeleteSessionByToken :exec

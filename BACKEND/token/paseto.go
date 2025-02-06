@@ -34,9 +34,13 @@ func NewMaker(secretKey string) (*PastoMaker, error) {
 	}, nil
 }
 
-func (maker *PastoMaker) GenerateToken(userID uuid.UUID, email string) (string, error) {
+func (maker *PastoMaker) GenerateToken(userID uuid.UUID, email string, expireTime string) (string, error) {
 	now := time.Now()
-	expiration := now.Add(20 * time.Minute)
+	duration, err := time.ParseDuration(expireTime)
+	if err != nil {
+		return "", err
+	}
+	expiration := now.Add(duration)
 
 	payload := TokenPayload{
 		ID:        userID,

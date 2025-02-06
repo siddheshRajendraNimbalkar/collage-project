@@ -93,10 +93,11 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
-const updateUser = `-- name: UpdateUser :exec
+const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET name = $2, email = $3, password_hash = $4, role = $5, organization_name = $6
 WHERE id = $1
+RETURNING id, name, email, password_hash, role, organization_name, created_at
 `
 
 type UpdateUserParams struct {
@@ -108,8 +109,8 @@ type UpdateUserParams struct {
 	OrganizationName string    `db:"organization_name" json:"organization_name"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.ExecContext(ctx, updateUser,
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.ID,
 		arg.Name,
 		arg.Email,
@@ -117,5 +118,15 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.Role,
 		arg.OrganizationName,
 	)
-	return err
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.OrganizationName,
+		&i.CreatedAt,
+	)
+	return i, err
 }
