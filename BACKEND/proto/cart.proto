@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb";
+
+
+message CartItem {
+  string id = 1;
+  string user_id = 2;
+  string product_id = 3;
+  int32 quantity = 4;
+  string created_at = 5;
+}
+
+message AddToCartRequest {
+  string user_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message GetCartRequest {
+  string user_id = 1;
+}
+
+message CartListResponse {
+  repeated CartItem items = 1;
+}
+
+message UpdateCartQuantityRequest {
+  string user_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message RemoveFromCartRequest {
+  string user_id = 1;
+  string product_id = 2;
+}
+
+message ClearCartRequest {
+  string user_id = 1;
+}
+
+message CartResponse {
+  string message = 1;
+}

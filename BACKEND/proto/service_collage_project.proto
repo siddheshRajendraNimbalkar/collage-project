@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package pb;
+
+import "user.proto";
+import "product.proto";
+import "order.proto";
+import "cart.proto";
+
+option go_package = "github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb";
+
+service CollageProject {
+  // USER
+    rpc SignUpUser(SignUpRequest) returns (AuthResponse);
+    rpc LoginUser(LoginRequest) returns (AuthResponse);
+    rpc GetUserByID(GetUserRequest) returns (UserResponse);
+    rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse);
+    rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
+
+  // Product
+    rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+    rpc GetProductByID(GetProductRequest) returns (ProductResponse);
+    rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+    rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+
+  // ORDER
+    rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+    rpc GetOrderByID(GetOrderRequest) returns (OrderResponse);
+    rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+    rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
+    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+
+  // CART
+    rpc AddToCart(AddToCartRequest) returns (CartResponse);
+    rpc GetCartByUser(GetCartRequest) returns (CartListResponse);
+    rpc UpdateCartQuantity(UpdateCartQuantityRequest) returns (CartResponse);
+    rpc RemoveFromCart(RemoveFromCartRequest) returns (CartResponse);
+    rpc ClearCart(ClearCartRequest) returns (CartResponse);
+  }
