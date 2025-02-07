@@ -6,17 +6,23 @@ RETURNING *;
 -- name: GetProductByID :one
 SELECT * FROM products WHERE id = $1;
 
--- name: GetAllProducts :many
-SELECT * FROM products;
+-- name: GetProductByName :many
+SELECT * FROM products WHERE name = $1;
 
--- name: UpdateProduct :exec
+-- name: GetAllProducts :many
+SELECT * FROM products
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2;
+
+-- name: UpdateProduct :one
 UPDATE products
 SET 
     name = $2,
     description = $3,
     price = $4,
     stock = $5
-WHERE id = $1;
+WHERE id = $1
+RETURNING *;
 
 
 -- name: DeleteProduct :exec

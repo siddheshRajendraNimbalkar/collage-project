@@ -49,7 +49,7 @@ func (q *Queries) DeleteSessionByToken(ctx context.Context, token string) error 
 }
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT id, user_id, token, created_at, expires_at, token_block FROM sessions WHERE token = $1
+SELECT id, user_id, token, created_at, expires_at, token_block FROM sessions WHERE token = $1 AND expires_at > NOW()
 `
 
 func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {

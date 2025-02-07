@@ -22,9 +22,10 @@ service CollageProject {
   // Product
     rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
     rpc GetProductByID(GetProductRequest) returns (ProductResponse);
-    rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+    rpc ListProducts(ListAllProductsRequest) returns (ListProductsResponse);
     rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+    rpc ListProductsByName(ListAllProductsByNameRequest) returns (ListAllProductsByNameResponse);
 
   // ORDER
     rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);

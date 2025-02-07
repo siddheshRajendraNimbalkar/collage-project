@@ -31,6 +31,7 @@ const (
 	CollageProject_ListProducts_FullMethodName       = "/pb.CollageProject/ListProducts"
 	CollageProject_UpdateProduct_FullMethodName      = "/pb.CollageProject/UpdateProduct"
 	CollageProject_DeleteProduct_FullMethodName      = "/pb.CollageProject/DeleteProduct"
+	CollageProject_ListProductsByName_FullMethodName = "/pb.CollageProject/ListProductsByName"
 	CollageProject_CreateOrder_FullMethodName        = "/pb.CollageProject/CreateOrder"
 	CollageProject_GetOrderByID_FullMethodName       = "/pb.CollageProject/GetOrderByID"
 	CollageProject_ListOrders_FullMethodName         = "/pb.CollageProject/ListOrders"
@@ -58,9 +59,10 @@ type CollageProjectClient interface {
 	// Product
 	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	GetProductByID(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
-	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
+	ListProducts(ctx context.Context, in *ListAllProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
+	ListProductsByName(ctx context.Context, in *ListAllProductsByNameRequest, opts ...grpc.CallOption) (*ListAllProductsByNameResponse, error)
 	// ORDER
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
@@ -173,7 +175,7 @@ func (c *collageProjectClient) GetProductByID(ctx context.Context, in *GetProduc
 	return out, nil
 }
 
-func (c *collageProjectClient) ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error) {
+func (c *collageProjectClient) ListProducts(ctx context.Context, in *ListAllProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListProductsResponse)
 	err := c.cc.Invoke(ctx, CollageProject_ListProducts_FullMethodName, in, out, cOpts...)
@@ -197,6 +199,16 @@ func (c *collageProjectClient) DeleteProduct(ctx context.Context, in *DeleteProd
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteProductResponse)
 	err := c.cc.Invoke(ctx, CollageProject_DeleteProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *collageProjectClient) ListProductsByName(ctx context.Context, in *ListAllProductsByNameRequest, opts ...grpc.CallOption) (*ListAllProductsByNameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAllProductsByNameResponse)
+	err := c.cc.Invoke(ctx, CollageProject_ListProductsByName_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -318,9 +330,10 @@ type CollageProjectServer interface {
 	// Product
 	CreateProduct(context.Context, *CreateProductRequest) (*ProductResponse, error)
 	GetProductByID(context.Context, *GetProductRequest) (*ProductResponse, error)
-	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
+	ListProducts(context.Context, *ListAllProductsRequest) (*ListProductsResponse, error)
 	UpdateProduct(context.Context, *UpdateProductRequest) (*ProductResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
+	ListProductsByName(context.Context, *ListAllProductsByNameRequest) (*ListAllProductsByNameResponse, error)
 	// ORDER
 	CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error)
 	GetOrderByID(context.Context, *GetOrderRequest) (*OrderResponse, error)
@@ -370,7 +383,7 @@ func (UnimplementedCollageProjectServer) CreateProduct(context.Context, *CreateP
 func (UnimplementedCollageProjectServer) GetProductByID(context.Context, *GetProductRequest) (*ProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProductByID not implemented")
 }
-func (UnimplementedCollageProjectServer) ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error) {
+func (UnimplementedCollageProjectServer) ListProducts(context.Context, *ListAllProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
 }
 func (UnimplementedCollageProjectServer) UpdateProduct(context.Context, *UpdateProductRequest) (*ProductResponse, error) {
@@ -378,6 +391,9 @@ func (UnimplementedCollageProjectServer) UpdateProduct(context.Context, *UpdateP
 }
 func (UnimplementedCollageProjectServer) DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
+}
+func (UnimplementedCollageProjectServer) ListProductsByName(context.Context, *ListAllProductsByNameRequest) (*ListAllProductsByNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProductsByName not implemented")
 }
 func (UnimplementedCollageProjectServer) CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
@@ -593,7 +609,7 @@ func _CollageProject_GetProductByID_Handler(srv interface{}, ctx context.Context
 }
 
 func _CollageProject_ListProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListProductsRequest)
+	in := new(ListAllProductsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -605,7 +621,7 @@ func _CollageProject_ListProducts_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: CollageProject_ListProducts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollageProjectServer).ListProducts(ctx, req.(*ListProductsRequest))
+		return srv.(CollageProjectServer).ListProducts(ctx, req.(*ListAllProductsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -642,6 +658,24 @@ func _CollageProject_DeleteProduct_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CollageProjectServer).DeleteProduct(ctx, req.(*DeleteProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CollageProject_ListProductsByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllProductsByNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollageProjectServer).ListProductsByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollageProject_ListProductsByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollageProjectServer).ListProductsByName(ctx, req.(*ListAllProductsByNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -880,6 +914,10 @@ var CollageProject_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProduct",
 			Handler:    _CollageProject_DeleteProduct_Handler,
+		},
+		{
+			MethodName: "ListProductsByName",
+			Handler:    _CollageProject_ListProductsByName_Handler,
 		},
 		{
 			MethodName: "CreateOrder",

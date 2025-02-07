@@ -26,7 +26,7 @@ message GetProductRequest {
   string id = 1;
 }
 
-message ListProductsRequest {
+message ListAllProductsRequest {
   int32 limit = 1;
   int32 offset = 2;
 }
@@ -53,4 +53,12 @@ message ProductResponse {
 
 message DeleteProductResponse {
   string message = 1;
+}
+
+message ListAllProductsByNameRequest {
+  string name = 1;
+}
+
+message ListAllProductsByNameResponse {
+  repeated Product products = 1;
 }
