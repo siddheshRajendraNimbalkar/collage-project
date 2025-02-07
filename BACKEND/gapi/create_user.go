@@ -56,7 +56,7 @@ func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*p
 		return nil, status.Errorf(codes.Internal, "failed to generate access token: %v", err)
 	}
 
-	refreshToken, err := server.tokenMaker.GenerateToken(user.ID, user.Email, server.config.DBSource)
+	refreshToken, err := server.tokenMaker.GenerateToken(user.ID, user.Email, server.config.REFRESHTOKENEXPIRESIN)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate refresh token: %v", err)
 	}
@@ -177,11 +177,8 @@ func (server *Server) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (
 }
 
 func (server *Server) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmailRequest) (*pb.UserResponse, error) {
-	email, err := uuid.Parse(req.GetEmail())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
-	}
-	user, err := server.store.GetUserByID(ctx, email)
+
+	user, err := server.store.GetUserByEmail(ctx, req.GetEmail())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -192,7 +189,7 @@ func (server *Server) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmail
 	// Return the user details in the response
 	return &pb.UserResponse{
 		User: &pb.User{
-			Id:               user.Name,
+			Id:               user.ID.String(),
 			Name:             user.Name,
 			Email:            user.Email,
 			Role:             user.Role,
