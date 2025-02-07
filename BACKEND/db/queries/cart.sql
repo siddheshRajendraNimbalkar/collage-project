@@ -10,5 +10,3 @@ UPDATE cart
 SET quantity = $3
 WHERE user_id = $1 AND product_id = $2;
 
--- name: RemoveFromCart :exec
-DELETE FROM cart WHERE user_id = $1 AND product_id = $2;
