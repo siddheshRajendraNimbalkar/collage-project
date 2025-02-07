@@ -66,7 +66,7 @@ type CollageProjectClient interface {
 	// ORDER
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
-	ListOrders(ctx context.Context, in *ListOrdersRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error)
+	ListOrders(ctx context.Context, in *ListOrdersByUserRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 	// CART
@@ -235,7 +235,7 @@ func (c *collageProjectClient) GetOrderByID(ctx context.Context, in *GetOrderReq
 	return out, nil
 }
 
-func (c *collageProjectClient) ListOrders(ctx context.Context, in *ListOrdersRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error) {
+func (c *collageProjectClient) ListOrders(ctx context.Context, in *ListOrdersByUserRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListOrdersResponse)
 	err := c.cc.Invoke(ctx, CollageProject_ListOrders_FullMethodName, in, out, cOpts...)
@@ -337,7 +337,7 @@ type CollageProjectServer interface {
 	// ORDER
 	CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error)
 	GetOrderByID(context.Context, *GetOrderRequest) (*OrderResponse, error)
-	ListOrders(context.Context, *ListOrdersRequest) (*ListOrdersResponse, error)
+	ListOrders(context.Context, *ListOrdersByUserRequest) (*ListOrdersResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*OrderResponse, error)
 	DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
 	// CART
@@ -401,7 +401,7 @@ func (UnimplementedCollageProjectServer) CreateOrder(context.Context, *CreateOrd
 func (UnimplementedCollageProjectServer) GetOrderByID(context.Context, *GetOrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderByID not implemented")
 }
-func (UnimplementedCollageProjectServer) ListOrders(context.Context, *ListOrdersRequest) (*ListOrdersResponse, error) {
+func (UnimplementedCollageProjectServer) ListOrders(context.Context, *ListOrdersByUserRequest) (*ListOrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListOrders not implemented")
 }
 func (UnimplementedCollageProjectServer) UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*OrderResponse, error) {
@@ -717,7 +717,7 @@ func _CollageProject_GetOrderByID_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _CollageProject_ListOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOrdersRequest)
+	in := new(ListOrdersByUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -729,7 +729,7 @@ func _CollageProject_ListOrders_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: CollageProject_ListOrders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollageProjectServer).ListOrders(ctx, req.(*ListOrdersRequest))
+		return srv.(CollageProjectServer).ListOrders(ctx, req.(*ListOrdersByUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

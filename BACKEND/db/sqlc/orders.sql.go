@@ -110,10 +110,11 @@ func (q *Queries) GetOrdersByUser(ctx context.Context, userID uuid.NullUUID) ([]
 	return items, nil
 }
 
-const updateOrderStatus = `-- name: UpdateOrderStatus :exec
+const updateOrderStatus = `-- name: UpdateOrderStatus :one
 UPDATE orders
 SET status = $2
 WHERE id = $1
+RETURNING id, user_id, product_id, quantity, total_price, status, created_at
 `
 
 type UpdateOrderStatusParams struct {
@@ -121,7 +122,17 @@ type UpdateOrderStatusParams struct {
 	Status sql.NullString `db:"status" json:"status"`
 }
 
-func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) error {
-	_, err := q.db.ExecContext(ctx, updateOrderStatus, arg.ID, arg.Status)
-	return err
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) (Order, error) {
+	row := q.db.QueryRowContext(ctx, updateOrderStatus, arg.ID, arg.Status)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }

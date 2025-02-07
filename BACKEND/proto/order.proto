@@ -25,10 +25,8 @@ message GetOrderRequest {
   string id = 1;
 }
 
-message ListOrdersRequest {
+message ListOrdersByUserRequest {
   string user_id = 1;
-  int32 limit = 2;
-  int32 offset = 3;
 }
 
 message ListOrdersResponse {

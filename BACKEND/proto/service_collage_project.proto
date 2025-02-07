@@ -30,7 +30,7 @@ service CollageProject {
   // ORDER
     rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
     rpc GetOrderByID(GetOrderRequest) returns (OrderResponse);
-    rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+    rpc ListOrders(ListOrdersByUserRequest) returns (ListOrdersResponse);
     rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
     rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
 

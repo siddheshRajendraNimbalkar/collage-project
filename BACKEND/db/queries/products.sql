@@ -24,6 +24,11 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateProductStock :exec
+UPDATE products
+SET stock = $2
+WHERE id = $1;
+
 
 -- name: DeleteProduct :exec
 DELETE FROM products WHERE id = $1;
