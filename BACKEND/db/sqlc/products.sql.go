@@ -7,23 +7,25 @@ package db
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 const createProduct = `-- name: CreateProduct :one
-INSERT INTO products (name, description, price, stock, created_by)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, name, description, price, stock, created_by, created_at
+INSERT INTO products (name, description, price, stock, product_url, category, type, created_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, name, description, price, stock, product_url, category, type, created_by, created_at
 `
 
 type CreateProductParams struct {
-	Name        string         `db:"name" json:"name"`
-	Description sql.NullString `db:"description" json:"description"`
-	Price       string         `db:"price" json:"price"`
-	Stock       int32          `db:"stock" json:"stock"`
-	CreatedBy   uuid.NullUUID  `db:"created_by" json:"created_by"`
+	Name        string        `db:"name" json:"name"`
+	Description string        `db:"description" json:"description"`
+	Price       string        `db:"price" json:"price"`
+	Stock       int32         `db:"stock" json:"stock"`
+	ProductUrl  string        `db:"product_url" json:"product_url"`
+	Category    string        `db:"category" json:"category"`
+	Type        string        `db:"type" json:"type"`
+	CreatedBy   uuid.NullUUID `db:"created_by" json:"created_by"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
@@ -32,6 +34,9 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Description,
 		arg.Price,
 		arg.Stock,
+		arg.ProductUrl,
+		arg.Category,
+		arg.Type,
 		arg.CreatedBy,
 	)
 	var i Product
@@ -41,6 +46,9 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Description,
 		&i.Price,
 		&i.Stock,
+		&i.ProductUrl,
+		&i.Category,
+		&i.Type,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -57,7 +65,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllProducts = `-- name: GetAllProducts :many
-SELECT id, name, description, price, stock, created_by, created_at FROM products
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -82,6 +90,9 @@ func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) 
 			&i.Description,
 			&i.Price,
 			&i.Stock,
+			&i.ProductUrl,
+			&i.Category,
+			&i.Type,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -99,7 +110,7 @@ func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) 
 }
 
 const getProductByID = `-- name: GetProductByID :one
-SELECT id, name, description, price, stock, created_by, created_at FROM products WHERE id = $1
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products WHERE id = $1
 `
 
 func (q *Queries) GetProductByID(ctx context.Context, id uuid.UUID) (Product, error) {
@@ -111,6 +122,9 @@ func (q *Queries) GetProductByID(ctx context.Context, id uuid.UUID) (Product, er
 		&i.Description,
 		&i.Price,
 		&i.Stock,
+		&i.ProductUrl,
+		&i.Category,
+		&i.Type,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -118,7 +132,7 @@ func (q *Queries) GetProductByID(ctx context.Context, id uuid.UUID) (Product, er
 }
 
 const getProductByName = `-- name: GetProductByName :many
-SELECT id, name, description, price, stock, created_by, created_at FROM products WHERE name = $1
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products WHERE name = $1
 `
 
 func (q *Queries) GetProductByName(ctx context.Context, name string) ([]Product, error) {
@@ -136,6 +150,9 @@ func (q *Queries) GetProductByName(ctx context.Context, name string) ([]Product,
 			&i.Description,
 			&i.Price,
 			&i.Stock,
+			&i.ProductUrl,
+			&i.Category,
+			&i.Type,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -158,17 +175,23 @@ SET
     name = $2,
     description = $3,
     price = $4,
-    stock = $5
+    stock = $5,
+    product_url = $6,
+    category = $7,
+    type = $8
 WHERE id = $1
-RETURNING id, name, description, price, stock, created_by, created_at
+RETURNING id, name, description, price, stock, product_url, category, type, created_by, created_at
 `
 
 type UpdateProductParams struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Name        string         `db:"name" json:"name"`
-	Description sql.NullString `db:"description" json:"description"`
-	Price       string         `db:"price" json:"price"`
-	Stock       int32          `db:"stock" json:"stock"`
+	ID          uuid.UUID `db:"id" json:"id"`
+	Name        string    `db:"name" json:"name"`
+	Description string    `db:"description" json:"description"`
+	Price       string    `db:"price" json:"price"`
+	Stock       int32     `db:"stock" json:"stock"`
+	ProductUrl  string    `db:"product_url" json:"product_url"`
+	Category    string    `db:"category" json:"category"`
+	Type        string    `db:"type" json:"type"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
@@ -178,6 +201,9 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		arg.Description,
 		arg.Price,
 		arg.Stock,
+		arg.ProductUrl,
+		arg.Category,
+		arg.Type,
 	)
 	var i Product
 	err := row.Scan(
@@ -186,6 +212,9 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.Description,
 		&i.Price,
 		&i.Stock,
+		&i.ProductUrl,
+		&i.Category,
+		&i.Type,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)

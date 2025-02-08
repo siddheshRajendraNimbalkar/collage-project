@@ -30,13 +30,16 @@ type Order struct {
 }
 
 type Product struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Name        string         `db:"name" json:"name"`
-	Description sql.NullString `db:"description" json:"description"`
-	Price       string         `db:"price" json:"price"`
-	Stock       int32          `db:"stock" json:"stock"`
-	CreatedBy   uuid.NullUUID  `db:"created_by" json:"created_by"`
-	CreatedAt   sql.NullTime   `db:"created_at" json:"created_at"`
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Name        string        `db:"name" json:"name"`
+	Description string        `db:"description" json:"description"`
+	Price       string        `db:"price" json:"price"`
+	Stock       int32         `db:"stock" json:"stock"`
+	ProductUrl  string        `db:"product_url" json:"product_url"`
+	Category    string        `db:"category" json:"category"`
+	Type        string        `db:"type" json:"type"`
+	CreatedBy   uuid.NullUUID `db:"created_by" json:"created_by"`
+	CreatedAt   sql.NullTime  `db:"created_at" json:"created_at"`
 }
 
 type Session struct {
@@ -55,5 +58,6 @@ type User struct {
 	PasswordHash     string       `db:"password_hash" json:"password_hash"`
 	Role             string       `db:"role" json:"role"`
 	OrganizationName string       `db:"organization_name" json:"organization_name"`
+	UserImage        string       `db:"user_image" json:"user_image"`
 	CreatedAt        sql.NullTime `db:"created_at" json:"created_at"`
 }

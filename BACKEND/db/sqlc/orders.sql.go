@@ -12,15 +12,26 @@ import (
 	"github.com/google/uuid"
 )
 
-const cancelOrder = `-- name: CancelOrder :exec
+const cancelOrder = `-- name: CancelOrder :one
 UPDATE orders
 SET status = 'cancelled'
 WHERE id = $1
+RETURNING id, user_id, product_id, quantity, total_price, status, created_at
 `
 
-func (q *Queries) CancelOrder(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, cancelOrder, id)
-	return err
+func (q *Queries) CancelOrder(ctx context.Context, id uuid.UUID) (Order, error) {
+	row := q.db.QueryRowContext(ctx, cancelOrder, id)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const createOrder = `-- name: CreateOrder :one

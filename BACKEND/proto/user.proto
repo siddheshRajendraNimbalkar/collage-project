@@ -11,14 +11,16 @@ message User {
   string role = 4;
   string organization_name = 5;
   string created_at = 6;
+  string user_image = 7; // Added user image
 }
 
 message SignUpRequest {
   string name = 1;
   string email = 2;
   string password = 3;
-  string role = 4;  // "college_staff" or "ngo_staff"
+  string role = 4;  
   string organization_name = 5;
+  string user_image = 6; // Added user image
 }
 
 message LoginRequest {
@@ -50,6 +52,7 @@ message UpdateUserRequest {
   string email = 3;
   string role = 4;
   string organization_name = 5;
+  string user_image = 6; // Added user image
 }
 
 message DeleteUserRequest {

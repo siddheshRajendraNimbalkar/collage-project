@@ -120,24 +120,11 @@ func (server *Server) UpdateOrderStatus(ctx context.Context, req *pb.UpdateOrder
 	return resp, nil
 }
 
-// DeleteOrder - Deletes an order
 func (server *Server) DeleteOrder(ctx context.Context, req *pb.DeleteOrderRequest) (*pb.DeleteOrderResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "order ID is required")
-	}
 
-	orderID, err := uuid.Parse(req.GetId())
+	response, err := server.store.DeleteOrderTx(ctx, req)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order ID format")
-	}
-
-	err = server.store.CancelOrder(ctx, orderID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "order not found")
-		}
 		return nil, status.Errorf(codes.Internal, "failed to delete order: %v", err)
 	}
-
-	return &pb.DeleteOrderResponse{Message: "order deleteted successfuly"}, nil
+	return response, nil
 }

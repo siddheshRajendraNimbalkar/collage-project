@@ -12,6 +12,9 @@ message Product {
   int32 stock = 5;
   string created_by = 6; // User ID of creator
   string created_at = 7;
+  string product_url = 8; // Added product URL
+  string category = 9; // Added category
+  string type = 10; // Added type
 }
 
 message CreateProductRequest {
@@ -20,6 +23,9 @@ message CreateProductRequest {
   double price = 3;
   int32 stock = 4;
   string created_by = 5;
+  string product_url = 6; // Added product URL
+  string category = 7; // Added category
+  string type = 8; // Added type
 }
 
 message GetProductRequest {
@@ -41,6 +47,9 @@ message UpdateProductRequest {
   string description = 3;
   double price = 4;
   int32 stock = 5;
+  string product_url = 6; // Added product URL
+  string category = 7; // Added category
+  string type = 8; // Added type
 }
 
 message DeleteProductRequest {

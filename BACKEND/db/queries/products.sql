@@ -1,6 +1,6 @@
 -- name: CreateProduct :one
-INSERT INTO products (name, description, price, stock, created_by)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO products (name, description, price, stock, product_url, category, type, created_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: GetProductByID :one
@@ -20,7 +20,10 @@ SET
     name = $2,
     description = $3,
     price = $4,
-    stock = $5
+    stock = $5,
+    product_url = $6,
+    category = $7,
+    type = $8
 WHERE id = $1
 RETURNING *;
 
@@ -28,7 +31,6 @@ RETURNING *;
 UPDATE products
 SET stock = $2
 WHERE id = $1;
-
 
 -- name: DeleteProduct :exec
 DELETE FROM products WHERE id = $1;

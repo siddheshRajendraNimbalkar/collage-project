@@ -38,6 +38,7 @@ func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*p
 		PasswordHash:     string(hashedPassword),
 		Role:             req.GetRole(),
 		OrganizationName: req.GetOrganizationName(),
+		UserImage:        req.GetUserImage(),
 	}
 
 	user, err := server.store.CreateUser(ctx, arg)
@@ -76,6 +77,7 @@ func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*p
 			Id:               user.ID.String(),
 			Name:             user.Name,
 			Email:            user.Email,
+			UserImage:        user.UserImage,
 			Role:             user.Role,
 			OrganizationName: user.OrganizationName,
 			CreatedAt:        user.CreatedAt.Time.Format("2006-01-02 15:04:05"),
@@ -129,6 +131,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 			Id:               user.ID.String(),
 			Name:             user.Name,
 			Email:            user.Email,
+			UserImage:        user.UserImage,
 			Role:             user.Role,
 			OrganizationName: user.OrganizationName,
 			CreatedAt:        user.CreatedAt.Time.Format("2006-01-02 15:04:05"),
@@ -137,7 +140,6 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 }
 
 func (server *Server) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
-
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
@@ -151,12 +153,46 @@ func (server *Server) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (
 	}
 	return &pb.UserResponse{
 		User: &pb.User{
-			Id:               user.Name,
+			Id:               user.ID.String(),
 			Name:             user.Name,
 			Email:            user.Email,
+			UserImage:        user.UserImage,
 			Role:             user.Role,
 			OrganizationName: user.OrganizationName,
 			CreatedAt:        user.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+		},
+	}, nil
+}
+
+func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
+	id, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
+	}
+
+	arg := db.UpdateUserParams{
+		ID:               id,
+		Name:             req.GetName(),
+		Email:            req.GetEmail(),
+		UserImage:        req.GetUserImage(),
+		Role:             req.GetRole(),
+		OrganizationName: req.GetOrganizationName(),
+	}
+
+	updatedUser, err := server.store.UpdateUser(ctx, arg)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
+	}
+
+	return &pb.UserResponse{
+		User: &pb.User{
+			Id:               updatedUser.ID.String(),
+			Name:             updatedUser.Name,
+			Email:            updatedUser.Email,
+			UserImage:        updatedUser.UserImage,
+			Role:             updatedUser.Role,
+			OrganizationName: updatedUser.OrganizationName,
+			CreatedAt:        updatedUser.CreatedAt.Time.Format("2006-01-02 15:04:05"),
 		},
 	}, nil
 }
@@ -177,47 +213,9 @@ func (server *Server) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmail
 			Name:             user.Name,
 			Email:            user.Email,
 			Role:             user.Role,
+			UserImage:        user.UserImage,
 			OrganizationName: user.OrganizationName,
 			CreatedAt:        user.CreatedAt.Time.Format("2006-01-02 15:04:05"),
-		},
-	}, nil
-}
-
-func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
-
-	id, err := uuid.Parse(req.GetId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
-	}
-	user, err := server.store.GetUserByID(ctx, id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "user not found")
-		}
-		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
-	}
-
-	arg := db.UpdateUserParams{
-		ID:               user.ID,
-		Name:             req.GetName(),
-		Email:            req.GetEmail(),
-		Role:             req.GetRole(),
-		OrganizationName: req.GetOrganizationName(),
-	}
-
-	updatedUser, err := server.store.UpdateUser(ctx, arg)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
-	}
-
-	return &pb.UserResponse{
-		User: &pb.User{
-			Id:               updatedUser.Name,
-			Name:             updatedUser.Name,
-			Email:            updatedUser.Email,
-			Role:             updatedUser.Role,
-			OrganizationName: updatedUser.OrganizationName,
-			CreatedAt:        updatedUser.CreatedAt.Time.Format("2006-01-02 15:04:05"),
 		},
 	}, nil
 }

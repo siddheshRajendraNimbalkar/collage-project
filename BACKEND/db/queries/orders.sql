@@ -15,7 +15,8 @@ SET status = $2
 WHERE id = $1
 RETURNING *;
 
--- name: CancelOrder :exec
+-- name: CancelOrder :one
 UPDATE orders
 SET status = 'cancelled'
-WHERE id = $1;
+WHERE id = $1
+RETURNING *;

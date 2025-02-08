@@ -23,16 +23,19 @@ func parseFloat(price string) float64 {
 
 func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.ProductResponse, error) {
 
-	if req.Name == "" || req.Price <= 0 || req.GetCreatedBy() == "" || req.GetStock() < 0 {
+	if req.Name == "" || req.Price <= 0 || req.GetCreatedBy() == "" || req.GetStock() < 0 || req.GetProductUrl() == "" || req.GetCategory() == "" || req.GetType() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product details")
 	}
 
 	productParams := db.CreateProductParams{
 		Name:        req.GetName(),
-		Description: sql.NullString{String: req.GetDescription(), Valid: req.GetDescription() != ""},
+		Description: req.GetDescription(),
 		Price:       fmt.Sprintf("%.2f", req.Price),
 		CreatedBy:   uuid.NullUUID{UUID: uuid.Must(uuid.Parse(req.GetCreatedBy())), Valid: req.GetCreatedBy() != ""},
 		Stock:       req.GetStock(),
+		ProductUrl:  req.GetProductUrl(),
+		Category:    req.GetCategory(),
+		Type:        req.GetType(),
 	}
 
 	product, err := server.store.CreateProduct(ctx, productParams)
@@ -44,10 +47,13 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		Product: &pb.Product{
 			Id:          product.ID.String(),
 			Name:        product.Name,
-			Description: product.Description.String,
+			Description: product.Description,
 			Price:       parseFloat(product.Price),
 			CreatedBy:   product.CreatedBy.UUID.String(),
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
 		},
 	}
 
@@ -72,15 +78,68 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
 	}
 
-	// Construct response
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
 			Id:          product.ID.String(),
 			Name:        product.Name,
-			Description: product.Description.String,
+			Description: product.Description,
 			Price:       parseFloat(product.Price),
 			CreatedBy:   product.CreatedBy.UUID.String(),
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+		},
+	}
+
+	return resp, nil
+}
+
+func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
+	if req.GetId() == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
+	}
+
+	productID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
+	}
+
+	existingProduct, err := server.store.GetProductByID(ctx, productID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "product not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
+	}
+
+	updateParams := db.UpdateProductParams{
+		ID:          productID,
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Price:       fmt.Sprintf("%.2f", req.GetPrice()),
+		Stock:       req.GetStock(),
+		ProductUrl:  req.GetProductUrl(),
+		Category:    req.GetCategory(),
+		Type:        req.GetType(),
+	}
+
+	updatedProduct, err := server.store.UpdateProduct(ctx, updateParams)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update product: %v", err)
+	}
+
+	resp := &pb.ProductResponse{
+		Product: &pb.Product{
+			Id:          updatedProduct.ID.String(),
+			Name:        updatedProduct.Name,
+			Description: updatedProduct.Description,
+			Price:       parseFloat(updatedProduct.Price),
+			CreatedBy:   existingProduct.CreatedBy.UUID.String(),
+			CreatedAt:   existingProduct.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			ProductUrl:  updatedProduct.ProductUrl,
+			Category:    updatedProduct.Category,
+			Type:        updatedProduct.Type,
 		},
 	}
 
@@ -111,7 +170,10 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 		productResponses = append(productResponses, &pb.Product{
 			Id:          product.ID.String(),
 			Name:        product.Name,
-			Description: product.Description.String,
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+			Description: product.Description,
 			Price:       parseFloat(product.Price),
 			CreatedBy:   product.CreatedBy.UUID.String(),
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
@@ -123,72 +185,6 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 	}
 
 	return resp, nil
-}
-
-func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
-	}
-
-	productID, err := uuid.Parse(req.GetId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
-	}
-
-	existingProduct, err := server.store.GetProductByID(ctx, productID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "product not found")
-		}
-		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
-	}
-
-	updateParams := db.UpdateProductParams{
-		ID:          productID,
-		Name:        req.GetName(),
-		Description: sql.NullString{String: req.GetDescription(), Valid: req.GetDescription() != ""},
-		Price:       fmt.Sprintf("%.2f", req.GetPrice()),
-		Stock:       req.GetStock(),
-	}
-
-	updatedProduct, err := server.store.UpdateProduct(ctx, updateParams)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to update product: %v", err)
-	}
-
-	resp := &pb.ProductResponse{
-		Product: &pb.Product{
-			Id:          updatedProduct.ID.String(),
-			Name:        updatedProduct.Name,
-			Description: updatedProduct.Description.String,
-			Price:       parseFloat(updatedProduct.Price),
-			CreatedBy:   existingProduct.CreatedBy.UUID.String(),
-			CreatedAt:   existingProduct.CreatedAt.Time.Format("2006-01-02 15:04:05"),
-		},
-	}
-
-	return resp, nil
-}
-
-func (server *Server) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*pb.DeleteProductResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
-	}
-
-	productID, err := uuid.Parse(req.GetId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
-	}
-
-	err = server.store.DeleteProduct(ctx, productID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "product not found")
-		}
-		return nil, status.Errorf(codes.Internal, "failed to delete product: %v", err)
-	}
-
-	return &pb.DeleteProductResponse{Message: "true"}, nil
 }
 
 func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllProductsByNameRequest) (*pb.ListAllProductsByNameResponse, error) {
@@ -205,9 +201,12 @@ func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllPro
 		productResponses = append(productResponses, &pb.Product{
 			Id:          product.ID.String(),
 			Name:        product.Name,
-			Description: product.Description.String,
+			Description: product.Description,
 			Price:       parseFloat(product.Price),
 			CreatedBy:   product.CreatedBy.UUID.String(),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
 		})
 	}

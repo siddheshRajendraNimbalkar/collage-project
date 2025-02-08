@@ -134,3 +134,53 @@ func (store *SQLStore) OrderTx(ctx context.Context, arg *pb.CreateOrderRequest) 
 
 	return result, nil
 }
+
+func (store *SQLStore) DeleteOrderTx(ctx context.Context, arg *pb.DeleteOrderRequest) (*pb.DeleteOrderResponse, error) {
+	var result = &pb.DeleteOrderResponse{}
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		if arg.GetId() == "" {
+			return fmt.Errorf("order ID is required")
+		}
+
+		orderID, err := uuid.Parse(arg.GetId())
+		if err != nil {
+			return fmt.Errorf("invalid order ID format: %v", err)
+		}
+
+		orderData, err := q.CancelOrder(ctx, orderID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return fmt.Errorf("order not found")
+			}
+			return fmt.Errorf("failed to delete order: %v", err)
+		}
+
+		if !orderData.ProductID.Valid {
+			return fmt.Errorf("invalid product ID for order")
+		}
+
+		getProduct, err := q.GetProductByID(ctx, orderData.ProductID.UUID)
+		if err != nil {
+			return fmt.Errorf("failed to get product: %v", err)
+		}
+
+		changeProd := UpdateProductStockParams{
+			ID:    orderData.ProductID.UUID,
+			Stock: orderData.Quantity + getProduct.Stock,
+		}
+
+		if err := q.UpdateProductStock(ctx, changeProd); err != nil {
+			return fmt.Errorf("failed to update product stock: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	result.Message = "order deleted successfully"
+	return result, nil
+}
