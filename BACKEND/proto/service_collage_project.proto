@@ -8,36 +8,152 @@ import "order.proto";
 import "cart.proto";
 
 option go_package = "github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb";
+import "google/api/annotations.proto";
 
 service CollageProject {
   // USER
-    rpc SignUpUser(SignUpRequest) returns (AuthResponse);
-    rpc LoginUser(LoginRequest) returns (AuthResponse);
-    rpc GetUserByID(GetUserRequest) returns (UserResponse);
-    rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse);
-    rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
-    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-    rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
+    rpc SignUpUser(SignUpRequest) returns (AuthResponse){
+      option (google.api.http) = {
+              post: "/v1/api/sign-in"
+              body: "*"
+           };
+    }
+    rpc LoginUser(LoginRequest) returns (AuthResponse){
+      option (google.api.http) = {
+              post: "/v1/api/login"
+              body: "*"
+           };
+    }
+    rpc GetUserByID(GetUserRequest) returns (UserResponse){
+      option (google.api.http) = {
+              post: "/v1/api/userId"
+              body: "*"
+           };
+    }
+    rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse){
+      option (google.api.http) = {
+              post: "/v1/api/UserEmail"
+              body: "*"
+           };
+    }
+    rpc UpdateUser(UpdateUserRequest) returns (UserResponse){
+      option (google.api.http) = {
+              post: "/v1/api/updateUser"
+              body: "*"
+           };
+    }
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+      option (google.api.http) = {
+              post: "/v1/api/deleteUser"
+              body: "*"
+           };
+    }
+    rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse){
+      option (google.api.http) = {
+              post: "/v1/api/refreshToken"
+              body: "*"
+           };
+    }
 
   // Product
-    rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
-    rpc GetProductByID(GetProductRequest) returns (ProductResponse);
-    rpc ListProducts(ListAllProductsRequest) returns (ListProductsResponse);
-    rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
-    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
-    rpc ListProductsByName(ListAllProductsByNameRequest) returns (ListAllProductsByNameResponse);
+    rpc CreateProduct(CreateProductRequest) returns (ProductResponse){
+      option (google.api.http) = {
+              post: "/v1/api/createProduct"
+              body: "*"
+           };
+    }
+    rpc GetProductByID(GetProductRequest) returns (ProductResponse){
+      option (google.api.http) = {
+              post: "/v1/api/productId"
+              body: "*"
+           };
+    }
+    rpc ListProducts(ListAllProductsRequest) returns (ListProductsResponse){
+      option (google.api.http) = {
+              post: "/v1/api/listProduct"
+              body: "*"
+           };
+    }
+    rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse){
+      option (google.api.http) = {
+              post: "/v1/api/updateProduct"
+              body: "*"
+           };
+    }
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse){
+      option (google.api.http) = {
+              post: "/v1/api/deleteProduct"
+              body: "*"
+           };
+    }
+    rpc ListProductsByName(ListAllProductsByNameRequest) returns (ListAllProductsByNameResponse){
+      option (google.api.http) = {
+              post: "/v1/api/getProductName"
+              body: "*"
+           };
+    }
 
   // ORDER
-    rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
-    rpc GetOrderByID(GetOrderRequest) returns (OrderResponse);
-    rpc ListOrders(ListOrdersByUserRequest) returns (ListOrdersResponse);
-    rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
-    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+    rpc CreateOrder(CreateOrderRequest) returns (OrderResponse){
+      option (google.api.http) = {
+              post: "/v1/api/createOrder"
+              body: "*"
+           };
+    }
+    rpc GetOrderByID(GetOrderRequest) returns (OrderResponse){
+      option (google.api.http) = {
+              post: "/v1/api/orderId"
+              body: "*"
+           };
+    }
+    rpc ListOrders(ListOrdersByUserRequest) returns (ListOrdersResponse){
+      option (google.api.http) = {
+              post: "/v1/api/orderList"
+              body: "*"
+           };
+    }
+    rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse){
+      option (google.api.http) = {
+              post: "/v1/api/udateOreder"
+              body: "*"
+           };
+    }
+    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse){
+      option (google.api.http) = {
+              post: "/v1/api/deleteOrder"
+              body: "*"
+           };
+    }
 
   // CART
-    rpc AddToCart(AddToCartRequest) returns (CartResponse);
-    rpc GetCartByUser(GetCartRequest) returns (CartListResponse);
-    rpc UpdateCartQuantity(UpdateCartQuantityRequest) returns (CartResponse);
-    rpc RemoveFromCart(RemoveFromCartRequest) returns (CartResponse);
-    rpc ClearCart(ClearCartRequest) returns (CartResponse);
+    rpc AddToCart(AddToCartRequest) returns (CartResponse){
+      option (google.api.http) = {
+              post: "/v1/api/createCart"
+              body: "*"
+           };
+    }
+    rpc GetCartByUser(GetCartRequest) returns (CartListResponse){
+      option (google.api.http) = {
+              post: "/v1/api/userCart"
+              body: "*"
+           };
+    }
+    rpc UpdateCartQuantity(UpdateCartQuantityRequest) returns (CartResponse){
+      option (google.api.http) = {
+              post: "/v1/api/cartQuantity"
+              body: "*"
+           };
+    }
+    rpc RemoveFromCart(RemoveFromCartRequest) returns (CartResponse){
+      option (google.api.http) = {
+              post: "/v1/api/removeCart"
+              body: "*"
+           };
+    }
+    rpc ClearCart(ClearCartRequest) returns (CartResponse){
+      option (google.api.http) = {
+              post: "/v1/api/clearCart"
+              body: "*"
+           };
+    }
   }

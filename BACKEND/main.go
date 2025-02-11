@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net"
+	"net/http"
+
+	runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/gapi"
@@ -18,16 +22,50 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
-
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
-
 	if err != nil {
 		log.Fatalf("cannot connect to database: %v", err)
 	}
-
 	store := db.NewStore(conn)
+	go grpcClient(*store, config)
+	grpcApiClient(*store, config)
+}
 
-	server, err := gapi.NewServer(config, store)
+func grpcApiClient(store db.SQLStore, config util.Config) {
+	server, err := gapi.NewServer(config, &store)
+	if err != nil {
+		log.Fatalf("[Can't get server]: %v", err)
+	}
+
+	grpcMux := runtime.NewServeMux()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err = pb.RegisterCollageProjectHandlerServer(ctx, grpcMux, server)
+	if err != nil {
+		log.Fatal("cann't connect to listener ", err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcMux)
+
+	listener, err := net.Listen("tcp", config.APIADDR)
+
+	if err != nil {
+		log.Fatalln("err while listeneing server at ", listener.Addr().String(), ": ", err.Error())
+	}
+
+	log.Println("http server is listening at ", listener.Addr().String())
+
+	err = http.Serve(listener, mux)
+	if err != nil {
+		log.Fatalf("cannot start gRPC server: %v", err)
+	}
+}
+
+func grpcClient(store db.SQLStore, config util.Config) {
+	server, err := gapi.NewServer(config, &store)
 	if err != nil {
 		log.Fatalf("[Can't get server]: %v", err)
 	}
@@ -48,5 +86,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot start gRPC server: %v", err)
 	}
-
 }

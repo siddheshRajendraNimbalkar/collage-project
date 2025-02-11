@@ -9,6 +9,7 @@ type Config struct {
 	SecretKey             string `mapstructure:"SECRET_KEY"`
 	REFRESHTOKENEXPIRESIN string `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
 	ACCESSTOKENEXPIRESIN  string `mapstructure:"ACCESS_TOKEN_EXPIRES_IN"`
+	APIADDR               string `mapstructure:"APIADDR"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
