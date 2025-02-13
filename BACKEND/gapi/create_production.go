@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
+	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -23,8 +25,8 @@ func parseFloat(price string) float64 {
 
 func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.ProductResponse, error) {
 
-	if req.Name == "" || req.Price <= 0 || req.GetCreatedBy() == "" || req.GetStock() < 0 || req.GetProductUrl() == "" || req.GetCategory() == "" || req.GetType() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid product details")
+	if err := util.ValidateCreateProductInput(req); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid product details: %v", err)
 	}
 
 	productParams := db.CreateProductParams{
@@ -96,8 +98,8 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 }
 
 func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
+	if err := util.ValidateUpdateProductInput(req); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
 	}
 
 	productID, err := uuid.Parse(req.GetId())
@@ -188,8 +190,8 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 }
 
 func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllProductsByNameRequest) (*pb.ListAllProductsByNameResponse, error) {
-	if req.GetName() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "product name is required")
+	if len(strings.TrimSpace(req.GetName())) >= 2 {
+		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
 	}
 	products, err := server.store.GetProductByName(ctx, req.GetName())
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
+	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,6 +20,11 @@ type Config struct {
 }
 
 func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*pb.AuthResponse, error) {
+
+	if err := util.ValidateSignUpInput(req); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
+	}
+
 	_, err := server.store.GetUserByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, status.Errorf(codes.AlreadyExists, "email already in use")
@@ -86,6 +92,10 @@ func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*p
 }
 
 func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.AuthResponse, error) {
+
+	if err := util.ValidateLogInInput(req); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
+	}
 
 	user, err := server.store.GetUserByEmail(ctx, req.GetEmail())
 	if err != nil {
@@ -165,6 +175,11 @@ func (server *Server) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (
 }
 
 func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
+
+	if err := util.ValidateUpdateInput(req); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
+	}
+
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)

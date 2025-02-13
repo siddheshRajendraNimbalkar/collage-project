@@ -15,6 +15,7 @@ import (
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func main() {
@@ -37,7 +38,14 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 		log.Fatalf("[Can't get server]: %v", err)
 	}
 
-	grpcMux := runtime.NewServeMux()
+	grpcMux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			UseProtoNames: true,
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{
+			DiscardUnknown: true,
+		},
+	}))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

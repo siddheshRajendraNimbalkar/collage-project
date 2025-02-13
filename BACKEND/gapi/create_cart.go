@@ -12,7 +12,7 @@ import (
 )
 
 func (server *Server) AddToCart(ctx context.Context, req *pb.AddToCartRequest) (*pb.CartResponse, error) {
-	// Validate request
+
 	if req.GetUserId() == "" || req.GetProductId() == "" || req.GetQuantity() <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid cart details")
 	}
