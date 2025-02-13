@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -100,37 +101,44 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET name = $2, email = $3, password_hash = $4, role = $5, organization_name = $6, user_image = $7
+SET name = $2, email = $3, role = $4, organization_name = $5, user_image = $6
 WHERE id = $1
-RETURNING id, name, email, password_hash, role, organization_name, user_image, created_at
+RETURNING id, name, email, role, organization_name, user_image, created_at
 `
 
 type UpdateUserParams struct {
 	ID               uuid.UUID `db:"id" json:"id"`
 	Name             string    `db:"name" json:"name"`
 	Email            string    `db:"email" json:"email"`
-	PasswordHash     string    `db:"password_hash" json:"password_hash"`
 	Role             string    `db:"role" json:"role"`
 	OrganizationName string    `db:"organization_name" json:"organization_name"`
 	UserImage        string    `db:"user_image" json:"user_image"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+type UpdateUserRow struct {
+	ID               uuid.UUID    `db:"id" json:"id"`
+	Name             string       `db:"name" json:"name"`
+	Email            string       `db:"email" json:"email"`
+	Role             string       `db:"role" json:"role"`
+	OrganizationName string       `db:"organization_name" json:"organization_name"`
+	UserImage        string       `db:"user_image" json:"user_image"`
+	CreatedAt        sql.NullTime `db:"created_at" json:"created_at"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error) {
 	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.ID,
 		arg.Name,
 		arg.Email,
-		arg.PasswordHash,
 		arg.Role,
 		arg.OrganizationName,
 		arg.UserImage,
 	)
-	var i User
+	var i UpdateUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Email,
-		&i.PasswordHash,
 		&i.Role,
 		&i.OrganizationName,
 		&i.UserImage,

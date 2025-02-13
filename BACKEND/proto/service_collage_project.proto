@@ -17,7 +17,8 @@ service CollageProject {
               post: "/v1/api/sign-in"
               body: "*"
            };
-    }
+      }
+    
     rpc LoginUser(LoginRequest) returns (AuthResponse){
       option (google.api.http) = {
               post: "/v1/api/login"

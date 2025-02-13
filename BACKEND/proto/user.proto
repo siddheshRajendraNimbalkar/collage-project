@@ -11,7 +11,7 @@ message User {
   string role = 4;
   string organization_name = 5;
   string created_at = 6;
-  string user_image = 7; // Added user image
+  string user_image = 7; 
 }
 
 message SignUpRequest {
@@ -20,7 +20,7 @@ message SignUpRequest {
   string password = 3;
   string role = 4;  
   string organization_name = 5;
-  string user_image = 6; // Added user image
+  string user_image = 6; 
 }
 
 message LoginRequest {
@@ -52,7 +52,7 @@ message UpdateUserRequest {
   string email = 3;
   string role = 4;
   string organization_name = 5;
-  string user_image = 6; // Added user image
+  string user_image = 6; 
 }
 
 message DeleteUserRequest {
