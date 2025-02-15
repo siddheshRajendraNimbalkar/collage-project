@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/gapi"
@@ -55,6 +56,13 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 		log.Fatal("cann't connect to listener ", err)
 	}
 
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Adjust as per your frontend's URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
 
@@ -66,7 +74,7 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 
 	log.Println("http server is listening at ", listener.Addr().String())
 
-	err = http.Serve(listener, mux)
+	err = http.Serve(listener, corsHandler.Handler(mux))
 	if err != nil {
 		log.Fatalf("cannot start gRPC server: %v", err)
 	}

@@ -31,7 +31,9 @@ message LoginRequest {
 message AuthResponse {
   string access_token = 1;
   string refresh_token = 2;
-  User user = 3;
+  string expire_access_token = 3;
+  string expire_refresh_token = 4;
+  User user = 5;
 }
 
 message GetUserRequest {

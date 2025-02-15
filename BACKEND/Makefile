@@ -25,6 +25,5 @@ generateProto:
         --grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
         proto/*.proto
 
-
 evans:
 	evans --host localhost --port 8080 --reflection repl

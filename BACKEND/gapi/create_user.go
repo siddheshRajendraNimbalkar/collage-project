@@ -76,9 +76,15 @@ func (server *Server) SignUpUser(ctx context.Context, req *pb.SignUpRequest) (*p
 		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
 	}
 
+	now := time.Now()
+	duration, _ = time.ParseDuration(server.config.ACCESSTOKENEXPIRESIN)
+	expirationTime := now.Add(duration)
+
 	return &pb.AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: session.Token,
+		AccessToken:        accessToken,
+		RefreshToken:       session.Token,
+		ExpireAccessToken:  expirationTime.Format(time.RFC3339),
+		ExpireRefreshToken: session.ExpiresAt.Format(time.RFC3339),
 		User: &pb.User{
 			Id:               user.ID.String(),
 			Name:             user.Name,
@@ -134,9 +140,15 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
 	}
 
+	now := time.Now()
+	duration, _ := time.ParseDuration(server.config.ACCESSTOKENEXPIRESIN)
+	expirationTime := now.Add(duration)
+
 	return &pb.AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: session.Token,
+		AccessToken:        accessToken,
+		RefreshToken:       session.Token,
+		ExpireAccessToken:  expirationTime.Format(time.RFC3339),
+		ExpireRefreshToken: session.ExpiresAt.Format(time.RFC3339),
 		User: &pb.User{
 			Id:               user.ID.String(),
 			Name:             user.Name,
@@ -251,5 +263,27 @@ func (server *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest)
 
 	return &pb.DeleteUserResponse{
 		Message: "User deleted successfully",
+	}, nil
+}
+
+func (s *Server) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.AuthResponse, error) {
+
+	if req.RefreshToken == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "refresh token is required")
+	}
+
+	userID, err := s.tokenMaker.VerifyToken(req.RefreshToken)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid or expired refresh token")
+	}
+
+	newAccessToken, err := s.tokenMaker.GenerateToken(userID.ID, userID.Email, s.config.ACCESSTOKENEXPIRESIN)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate new access token")
+	}
+
+	return &pb.AuthResponse{
+		AccessToken:  newAccessToken,
+		RefreshToken: req.RefreshToken,
 	}, nil
 }
