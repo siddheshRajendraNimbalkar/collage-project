@@ -29,11 +29,16 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product details: %v", err)
 	}
 
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+
 	productParams := db.CreateProductParams{
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
 		Price:       fmt.Sprintf("%.2f", req.Price),
-		CreatedBy:   uuid.NullUUID{UUID: uuid.Must(uuid.Parse(req.GetCreatedBy())), Valid: req.GetCreatedBy() != ""},
+		CreatedBy:   uuid.NullUUID{UUID: token.ID, Valid: true},
 		Stock:       req.GetStock(),
 		ProductUrl:  req.GetProductUrl(),
 		Category:    req.GetCategory(),

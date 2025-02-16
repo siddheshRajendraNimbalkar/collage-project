@@ -1,38 +1,44 @@
-'use client'
-import { useState } from "react";
-import * as z from "zod";
-import axios from "axios";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
-import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage";
+"use client"
 
-// Dialog components
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { useState } from "react"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import axios from "axios"
 
-const Page = () => {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null); // Custom message state
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null); // For success/error distinction
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog visibility state
-  
-  const productSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    description: z.string().min(1, "Description is required"),
-    price: z.number().min(0, "Price must be a positive number"),
-    stock: z.number().min(0, "Stock must be a positive number"),
-    product_url: z.string().url("Invalid URL"),
-    category: z.string().optional(),
-    type: z.string().optional(),
-  });
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage"
 
-  type ProductFormValues = z.infer<typeof productSchema>;
+const productSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z.number().min(0, "Price must be a positive number"),
+  stock: z.number().min(0, "Stock must be a positive number"),
+  product_url: z.string().url("Invalid URL"),
+  category: z.string().optional(),
+  type: z.string().optional(),
+})
+
+type ProductFormValues = z.infer<typeof productSchema>
+
+export default function ProductForm() {
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -45,61 +51,52 @@ const Page = () => {
       category: undefined,
       type: undefined,
     },
-  });
+  })
 
-  const onSubmit = async (data: ProductFormValues) => {
+  async function onSubmit(data: ProductFormValues) {
     try {
-      setLoading(true);
-      setMessage(null); // Reset message
+      setLoading(true)
+      setMessage(null)
 
-      const token = localStorage.getItem("token");
-
+      const token = localStorage.getItem("token")
       if (!token) {
-        throw new Error("Authentication Error: No authentication token found.");
+        throw new Error("Authentication Error: No authentication token found.")
       }
 
-      const response = await axios.post(
-        "http://localhost:9090/v1/api/createProduct",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post("http://localhost:9090/v1/api/createProduct", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
 
-      setMessage("Product created successfully!");
-      setMessageType("success");
+      setMessage("Product created successfully!")
+      setMessageType("success")
     } catch (error: any) {
-      console.error("Error creating product:", error);
+      console.error("Error creating product:", error)
 
       if (axios.isAxiosError(error)) {
-        const errorMessage = error?.response?.data?.message || "Failed to create product.";
-        setMessage(errorMessage);
-        setMessageType("error");
+        const errorMessage = error?.response?.data?.message || "Failed to create product."
+        setMessage(errorMessage)
       } else {
-        setMessage(error.message || "An unexpected error occurred.");
-        setMessageType("error");
+        setMessage(error.message || "An unexpected error occurred.")
       }
+      setMessageType("error")
     } finally {
-      setLoading(false);
-      setIsDialogOpen(true); // Open the dialog box after operation
+      setLoading(false)
+      setIsDialogOpen(true)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto p-6 max-w-3xl">
       <Card className="shadow-lg border border-gray-200 rounded-xl bg-white">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-semibold text-gray-800">
-            Add New Product
-          </CardTitle>
+          <CardTitle className="text-3xl font-semibold text-gray-800">Add New Product</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Image Upload */}
               <FormField
                 control={form.control}
                 name="product_url"
@@ -108,10 +105,7 @@ const Page = () => {
                     <FormLabel>Image</FormLabel>
                     <FormControl>
                       <div className="relative w-fit">
-                        <SingleImageDropzoneUsage
-                          values={field.value}
-                          onChange={field.onChange}
-                        />
+                        <SingleImageDropzoneUsage values={field.value} onChange={field.onChange} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -119,7 +113,6 @@ const Page = () => {
                 )}
               />
 
-              {/* Name */}
               <FormField
                 control={form.control}
                 name="name"
@@ -134,7 +127,6 @@ const Page = () => {
                 )}
               />
 
-              {/* Description */}
               <FormField
                 control={form.control}
                 name="description"
@@ -142,18 +134,13 @@ const Page = () => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Enter product description"
-                        className="min-h-32"
-                        {...field}
-                      />
+                      <Textarea placeholder="Enter product description" className="min-h-32" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Price and Stock */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -167,9 +154,7 @@ const Page = () => {
                           placeholder="Enter price"
                           step="0.01"
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.onChange(Number.parseFloat(e.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -187,9 +172,7 @@ const Page = () => {
                           type="number"
                           placeholder="Enter stock quantity"
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
-                          }
+                          onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -198,7 +181,6 @@ const Page = () => {
                 />
               </div>
 
-              {/* Category and Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -206,10 +188,7 @@ const Page = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
@@ -232,10 +211,7 @@ const Page = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
@@ -256,7 +232,7 @@ const Page = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={loading}
               >
                 {loading ? "Submitting..." : "Submit Product"}
@@ -266,20 +242,18 @@ const Page = () => {
         </CardContent>
       </Card>
 
-      {/* Dialog Box */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>{messageType === "success" ? "Success" : "Error"}</DialogTitle>
+            <DialogTitle >{messageType === "success" ? "Success" : "Error"}</DialogTitle>
             <DialogDescription>{message}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+            <Button onClick={() => setIsDialogOpen(false)} className="bg-red-800 text-white hover:bg-black">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default Page;

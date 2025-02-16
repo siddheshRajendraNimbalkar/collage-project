@@ -76,6 +76,7 @@ const Navbar = () => {
             <Button
               variant="destructive"
               className="bg-[#FF90E8] hover:bg-green-600 h-24 px-6 text-lg font-bold"
+              onClick={()=>{route.push('/Selling/create')}}
             >
               Selling Details
             </Button>

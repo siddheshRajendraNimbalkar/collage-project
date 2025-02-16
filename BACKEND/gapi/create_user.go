@@ -3,6 +3,7 @@ package gapi
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -192,13 +193,15 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
 	}
 
-	id, err := uuid.Parse(req.GetId())
+	token, err := server.AuthInterceptor(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
 
+	fmt.Println(token)
+
 	arg := db.UpdateUserParams{
-		ID:               id,
+		ID:               token.ID,
 		Name:             req.GetName(),
 		Email:            req.GetEmail(),
 		UserImage:        req.GetUserImage(),

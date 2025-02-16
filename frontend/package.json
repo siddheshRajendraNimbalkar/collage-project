@@ -10,11 +10,17 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.3",
+    "@edgestore/react": "^0.2.2",
+    "@edgestore/server": "^0.2.2",
     "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^4.1.0",
+    "@radix-ui/react-alert-dialog": "^1.1.6",
+    "@radix-ui/react-aspect-ratio": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.6",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -26,10 +32,13 @@
     "paseto": "^3.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.4.0",
+    "sonner": "^1.7.4",
     "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

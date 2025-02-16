@@ -6,24 +6,18 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
 )
 
 func ValidateCreateProductInput(req *pb.CreateProductRequest) error {
 	// Name validation
-	if len(strings.TrimSpace(req.GetName())) >= 3 {
+	if len(strings.TrimSpace(req.GetName())) <= 3 {
 		return fmt.Errorf("name must be at list 3 character long")
 	}
 
 	// Price validation
 	if req.GetPrice() <= 0 {
 		return fmt.Errorf("price must be greater than zero")
-	}
-
-	// CreatedBy UUID validation
-	if _, err := uuid.Parse(req.GetCreatedBy()); err != nil {
-		return fmt.Errorf("invalid UUID format for CreatedBy")
 	}
 
 	// Stock validation (should be non-negative)

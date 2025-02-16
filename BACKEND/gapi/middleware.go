@@ -3,30 +3,33 @@ package gapi
 import (
 	"context"
 	"errors"
-	"log"
 	"strings"
+	"time"
 
-	"google.golang.org/grpc"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
 )
 
 type AuthContextKey string
 
+type TokenPayload struct {
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	IssuedAt  time.Time `json:"issued_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
 const AuthPayloadKey AuthContextKey = "auth_payload"
 
 func (server *Server) AuthInterceptor(
 	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (interface{}, error) {
+) (*TokenPayload, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errors.New("missing metadata in context")
 	}
 
 	tokens := md.Get("authorization")
-	log.Println("Extracted Metadata:", tokens)
 	if len(tokens) == 0 {
 		return nil, errors.New("authorization token not found")
 	}
@@ -41,7 +44,5 @@ func (server *Server) AuthInterceptor(
 		return nil, err
 	}
 
-	ctx = context.WithValue(ctx, AuthPayloadKey, tokenPayload)
-
-	return handler(ctx, req)
+	return (*TokenPayload)(tokenPayload), nil
 }
