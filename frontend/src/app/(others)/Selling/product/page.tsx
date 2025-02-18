@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -18,6 +19,8 @@ const ProductPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     fetchProducts();
@@ -156,10 +159,13 @@ const ProductPage = () => {
                 animationDelay: `${index * 100}ms`,
                 animationFillMode: 'forwards',
               }}
+              onClick={()=>{
+                router.push(`/Selling/product/${product.id}`)
+              }}
             >
                 <CardHeader className="pb-2">
-                  <span className="text-gray-500 text-sm">{product.category}</span>
                   <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
+                  <span className="text-gray-500 text-sm">{product.type}</span>
                 </CardHeader>
                 <CardContent>
                   <div className="relative h-52 overflow-hidden bg-gray-100 rounded-2xl">

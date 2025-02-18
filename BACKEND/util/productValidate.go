@@ -68,8 +68,8 @@ func validateURL(productUrl string) error {
 
 func ValidateUpdateProductInput(req *pb.UpdateProductRequest) error {
 	// Name validation
-	if len(strings.TrimSpace(req.GetName())) >= 3 {
-		return fmt.Errorf("name must be at list 3 character long")
+	if len(strings.TrimSpace(req.GetName())) <= 2 {
+		return fmt.Errorf("name must be at list 2 character long")
 	}
 
 	// Price validation

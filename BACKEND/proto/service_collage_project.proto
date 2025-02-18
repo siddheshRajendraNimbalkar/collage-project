@@ -82,12 +82,14 @@ service CollageProject {
               body: "*"
            };
     }
+
     rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse){
       option (google.api.http) = {
               post: "/v1/api/updateProduct"
               body: "*"
            };
     }
+    
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse){
       option (google.api.http) = {
               post: "/v1/api/deleteProduct"

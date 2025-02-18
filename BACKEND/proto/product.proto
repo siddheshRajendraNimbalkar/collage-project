@@ -46,9 +46,9 @@ message UpdateProductRequest {
   string description = 3;
   double price = 4;
   int32 stock = 5;
-  string product_url = 6; // Added product URL
-  string category = 7; // Added category
-  string type = 8; // Added type
+  string product_url = 6; 
+  string category = 7; 
+  string type = 8; 
 }
 
 message DeleteProductRequest {

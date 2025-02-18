@@ -72,6 +72,11 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
 	}
 
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+
 	productID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
@@ -83,6 +88,10 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 			return nil, status.Errorf(codes.NotFound, "product not found")
 		}
 		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
+	}
+
+	if product.CreatedBy.UUID != token.ID {
+		return nil, status.Errorf(codes.InvalidArgument, "Wrong User")
 	}
 
 	resp := &pb.ProductResponse{
@@ -103,13 +112,30 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 }
 
 func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
+
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+	productID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
+	}
+
+	product, err := server.store.GetProductByID(ctx, productID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "product not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
+	}
+
 	if err := util.ValidateUpdateProductInput(req); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid input: %v", err)
 	}
 
-	productID, err := uuid.Parse(req.GetId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
+	if product.CreatedBy.UUID != token.ID {
+		return nil, status.Errorf(codes.InvalidArgument, "Only Product Creater can change product data")
 	}
 
 	existingProduct, err := server.store.GetProductByID(ctx, productID)

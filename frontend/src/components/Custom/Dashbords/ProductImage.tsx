@@ -5,20 +5,23 @@ import { useEdgeStore } from '@/lib/edgestore';
 import { useState } from 'react';
 import { SingleImageDropzone } from './SingleImageDropzone';
 
-export function SingleImageDropzoneUsage({values,onChange}:{values:any,onChange:(file:File|undefined|string|any)=>void}) {
+
+export function SingleImageDropzoneUsage({values,onChange}:{values:any,onChange:(file:File|string|any)=>void}) {
   const [file, setFile] = useState<File>();
+  const [myValues, setMyValues] = useState(values);
+
   const { edgestore } = useEdgeStore();
   const [mystyle,setMystyle] = useState<Number>(0);
   const [display,setDisplay] = useState<boolean>(false)
-
   return (
     <div>
       <SingleImageDropzone
         width={200}
         height={200}
-        value={file}
+        value={myValues}
         onChange={(file) => {
           setFile(file);
+          setMyValues(file)
           onChange(values)
         }}
       />
