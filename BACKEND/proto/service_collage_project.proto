@@ -49,7 +49,7 @@ service CollageProject {
               body: "*"
            };
     }
-    rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse){
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse){
       option (google.api.http) = {
               post: "/v1/api/refreshToken"
               body: "*"
@@ -68,6 +68,13 @@ service CollageProject {
               post: "/v1/api/productId"
               body: "*"
            };
+    }
+    
+    rpc GetProductByUserID(ListAllProductsByCreateBy) returns (ListAllProductsByNameResponse){
+      option (google.api.http) = {
+                post: "/v1/api/productByUser"
+                body: "*"
+            };
     }
     rpc ListProducts(ListAllProductsRequest) returns (ListProductsResponse){
       option (google.api.http) = {

@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const petalColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#FF9999'];
 
     return (
-      <motion.div 
+      <motion.div
         className="relative flex justify-center items-center w-16 h-16"
         animate={{ rotate: [0, 360] }}
         transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
@@ -71,8 +71,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       </div>
     );
-  }
-
+  }else{
+    
   return (
     <div className="flex h-[100vh] w-full bg-stone-50 overflow-hidden">
       {/* Sidebar */}
@@ -133,15 +133,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </motion.nav>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-auto bg-stone-50">
-        <div className="bg-white rounded-xl shadow-sm p-8 h-[100vh]">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <main className="flex-1 p-8 overflow-hidden bg-stone-50">
+        <div className="bg-white rounded-xl shadow-sm p-8 max-h-[calc(100vh-64px)] overflow-auto no-scrollbar">
+          <motion.div
+            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             {children}
           </motion.div>
         </div>
       </main>
+
     </div>
   );
 };
 
+
+}
 export default Layout;

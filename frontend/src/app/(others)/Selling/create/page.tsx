@@ -95,7 +95,7 @@ const Page = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-3xl">
+    <div className="container mx-auto p-6 max-w-3xl ">
       <Card className="shadow-lg border border-gray-200 rounded-xl bg-white">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-semibold text-gray-800">
@@ -217,11 +217,11 @@ const Page = () => {
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger >
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           <SelectItem value="paintings">Paintings</SelectItem>
                           <SelectItem value="sculptures">Sculptures</SelectItem>
                           <SelectItem value="photography">Photography</SelectItem>
@@ -247,7 +247,7 @@ const Page = () => {
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           <SelectItem value="original">Original</SelectItem>
                           <SelectItem value="print">Print</SelectItem>
                           <SelectItem value="limited">Limited Edition</SelectItem>
@@ -280,7 +280,7 @@ const Page = () => {
             <DialogDescription>{message}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setIsDialogOpen(false)} className="bg-red-800 text-white hover:text-black">Close</Button>
+            <Button onClick={() => setIsDialogOpen(false)} className={`${messageType == 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

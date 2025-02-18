@@ -70,3 +70,8 @@ message ListAllProductsByNameRequest {
 message ListAllProductsByNameResponse {
   repeated Product products = 1;
 }
+
+
+message ListAllProductsByCreateBy{
+  
+}

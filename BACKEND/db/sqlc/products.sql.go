@@ -169,6 +169,44 @@ func (q *Queries) GetProductByName(ctx context.Context, name string) ([]Product,
 	return items, nil
 }
 
+const getProductByUserID = `-- name: GetProductByUserID :many
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products WHERE created_by = $1
+`
+
+func (q *Queries) GetProductByUserID(ctx context.Context, createdBy uuid.NullUUID) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, getProductByUserID, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Product{}
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.Stock,
+			&i.ProductUrl,
+			&i.Category,
+			&i.Type,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
 SET 

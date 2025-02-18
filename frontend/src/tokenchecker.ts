@@ -14,28 +14,31 @@ const TokenChecker = async (): Promise<{ success: boolean; message: string }> =>
         return adjustedExpirationTime < new Date();
     };
 
-    if (!refreshToken || !expireRefreshToken) {
+    if (!refreshToken || isExpired(expireRefreshToken)) {
         return { success: false, message: "No refresh token found, please log in again." };
     }
 
     if (!token || isExpired(expireToken)) {
-        if (isExpired(expireRefreshToken)) {
-            return { success: false, message: "Session expired, please log in again." };
-        }
 
         try {
-            const response = await axios.post('/api/auth/refresh', { refreshToken });
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/api/refreshToken`, { refreshToken },{
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+
+               
 
             if (response.data) {
-                const newToken = response.data.token;
-                const newRefreshToken = response.data.refreshToken;
-
-                if (newToken) localStorage.setItem('token', newToken);
-                if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
-                if (response.data.expireToken) localStorage.setItem('expireToken', response.data.expireToken);
-                if (response.data.expireRefreshToken) localStorage.setItem('expireRefreshToken', response.data.expireRefreshToken);
-
-                return { success: true, message: "Token refreshed successfully." };
+                const newToken = response.data.access_token;
+                const newExpireToken = response.data.expire_access_token
+                if (newToken && newExpireToken) {
+                    console.log(newExpireToken)   
+                    localStorage.setItem('token', newToken);
+                    localStorage.setItem('expireToken', newExpireToken);
+                    return { success: true, message: "Token refreshed successfully." };
+                }
+                return { success: false, message: "error occure while storing it to localStorage" };
             }
         } catch (error) {
             console.error("Failed to refresh token:", error);

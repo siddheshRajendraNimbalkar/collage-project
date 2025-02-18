@@ -28,6 +28,7 @@ const (
 	CollageProject_RefreshToken_FullMethodName       = "/pb.CollageProject/RefreshToken"
 	CollageProject_CreateProduct_FullMethodName      = "/pb.CollageProject/CreateProduct"
 	CollageProject_GetProductByID_FullMethodName     = "/pb.CollageProject/GetProductByID"
+	CollageProject_GetProductByUserID_FullMethodName = "/pb.CollageProject/GetProductByUserID"
 	CollageProject_ListProducts_FullMethodName       = "/pb.CollageProject/ListProducts"
 	CollageProject_UpdateProduct_FullMethodName      = "/pb.CollageProject/UpdateProduct"
 	CollageProject_DeleteProduct_FullMethodName      = "/pb.CollageProject/DeleteProduct"
@@ -55,10 +56,11 @@ type CollageProjectClient interface {
 	GetUserByEmail(ctx context.Context, in *GetUserByEmailRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	// Product
 	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	GetProductByID(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
+	GetProductByUserID(ctx context.Context, in *ListAllProductsByCreateBy, opts ...grpc.CallOption) (*ListAllProductsByNameResponse, error)
 	ListProducts(ctx context.Context, in *ListAllProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
@@ -145,9 +147,9 @@ func (c *collageProjectClient) DeleteUser(ctx context.Context, in *DeleteUserReq
 	return out, nil
 }
 
-func (c *collageProjectClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+func (c *collageProjectClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthResponse)
+	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, CollageProject_RefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -169,6 +171,16 @@ func (c *collageProjectClient) GetProductByID(ctx context.Context, in *GetProduc
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ProductResponse)
 	err := c.cc.Invoke(ctx, CollageProject_GetProductByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *collageProjectClient) GetProductByUserID(ctx context.Context, in *ListAllProductsByCreateBy, opts ...grpc.CallOption) (*ListAllProductsByNameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAllProductsByNameResponse)
+	err := c.cc.Invoke(ctx, CollageProject_GetProductByUserID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -326,10 +338,11 @@ type CollageProjectServer interface {
 	GetUserByEmail(context.Context, *GetUserByEmailRequest) (*UserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
-	RefreshToken(context.Context, *RefreshTokenRequest) (*AuthResponse, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	// Product
 	CreateProduct(context.Context, *CreateProductRequest) (*ProductResponse, error)
 	GetProductByID(context.Context, *GetProductRequest) (*ProductResponse, error)
+	GetProductByUserID(context.Context, *ListAllProductsByCreateBy) (*ListAllProductsByNameResponse, error)
 	ListProducts(context.Context, *ListAllProductsRequest) (*ListProductsResponse, error)
 	UpdateProduct(context.Context, *UpdateProductRequest) (*ProductResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
@@ -374,7 +387,7 @@ func (UnimplementedCollageProjectServer) UpdateUser(context.Context, *UpdateUser
 func (UnimplementedCollageProjectServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
-func (UnimplementedCollageProjectServer) RefreshToken(context.Context, *RefreshTokenRequest) (*AuthResponse, error) {
+func (UnimplementedCollageProjectServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedCollageProjectServer) CreateProduct(context.Context, *CreateProductRequest) (*ProductResponse, error) {
@@ -382,6 +395,9 @@ func (UnimplementedCollageProjectServer) CreateProduct(context.Context, *CreateP
 }
 func (UnimplementedCollageProjectServer) GetProductByID(context.Context, *GetProductRequest) (*ProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProductByID not implemented")
+}
+func (UnimplementedCollageProjectServer) GetProductByUserID(context.Context, *ListAllProductsByCreateBy) (*ListAllProductsByNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProductByUserID not implemented")
 }
 func (UnimplementedCollageProjectServer) ListProducts(context.Context, *ListAllProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
@@ -604,6 +620,24 @@ func _CollageProject_GetProductByID_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CollageProjectServer).GetProductByID(ctx, req.(*GetProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CollageProject_GetProductByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllProductsByCreateBy)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollageProjectServer).GetProductByUserID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollageProject_GetProductByUserID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollageProjectServer).GetProductByUserID(ctx, req.(*ListAllProductsByCreateBy))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -902,6 +936,10 @@ var CollageProject_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProductByID",
 			Handler:    _CollageProject_GetProductByID_Handler,
+		},
+		{
+			MethodName: "GetProductByUserID",
+			Handler:    _CollageProject_GetProductByUserID_Handler,
 		},
 		{
 			MethodName: "ListProducts",

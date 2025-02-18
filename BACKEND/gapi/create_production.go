@@ -224,3 +224,36 @@ func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllPro
 
 	return resp, nil
 }
+
+func (server *Server) GetProductByUserID(ctx context.Context, req *pb.ListAllProductsByCreateBy) (*pb.ListAllProductsByNameResponse, error) {
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+	products, err := server.store.GetProductByUserID(ctx, uuid.NullUUID{UUID: token.ID, Valid: true})
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to grt products: %v", err)
+	}
+
+	productResponses := []*pb.Product{}
+	for _, product := range products {
+		productResponses = append(productResponses, &pb.Product{
+			Id:          product.ID.String(),
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       parseFloat(product.Price),
+			CreatedBy:   product.CreatedBy.UUID.String(),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	resp := &pb.ListAllProductsByNameResponse{
+		Products: productResponses,
+	}
+
+	return resp, nil
+}

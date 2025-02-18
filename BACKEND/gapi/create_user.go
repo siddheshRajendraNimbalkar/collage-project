@@ -142,7 +142,11 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 	}
 
 	now := time.Now()
-	duration, _ := time.ParseDuration(server.config.ACCESSTOKENEXPIRESIN)
+	duration, err := time.ParseDuration(server.config.ACCESSTOKENEXPIRESIN)
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
 	expirationTime := now.Add(duration)
 
 	return &pb.AuthResponse{
@@ -269,7 +273,7 @@ func (server *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest)
 	}, nil
 }
 
-func (s *Server) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.AuthResponse, error) {
+func (s *Server) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
 
 	if req.RefreshToken == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "refresh token is required")
@@ -285,8 +289,14 @@ func (s *Server) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) 
 		return nil, status.Errorf(codes.Internal, "failed to generate new access token")
 	}
 
-	return &pb.AuthResponse{
-		AccessToken:  newAccessToken,
-		RefreshToken: req.RefreshToken,
+	duration, err := time.ParseDuration(s.config.ACCESSTOKENEXPIRESIN)
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
+
+	return &pb.RefreshTokenResponse{
+		AccessToken:       newAccessToken,
+		ExpireAccessToken: time.Now().Add(duration).Format(time.RFC3339),
 	}, nil
 }

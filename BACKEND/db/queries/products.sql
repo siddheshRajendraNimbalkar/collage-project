@@ -6,6 +6,9 @@ RETURNING *;
 -- name: GetProductByID :one
 SELECT * FROM products WHERE id = $1;
 
+-- name: GetProductByUserID :many
+SELECT * FROM products WHERE created_by = $1;
+
 -- name: GetProductByName :many
 SELECT * FROM products WHERE name = $1;
 

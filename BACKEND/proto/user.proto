@@ -36,6 +36,11 @@ message AuthResponse {
   User user = 5;
 }
 
+message RefreshTokenResponse {
+  string access_token = 1;
+  string expire_access_token = 2;
+}
+
 message GetUserRequest {
   string id = 1;
 }
