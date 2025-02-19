@@ -50,7 +50,7 @@ const SearchBar = () => {
             { label: 'Poster', href: '/Art/poster' },
             { label: 'Picture', href: '/Art/picture' }
           ]}
-          menuBgColor="#800000"
+          menuBgColor="#FFFF00"
         />
 
         <AnimatedButton
@@ -63,11 +63,8 @@ const SearchBar = () => {
             { label: 'Travel', href: '/Poster/travel' },
             { label: 'Wildlife', href: '/Poster/wildlife' }
           ]}
-          menuBgColor="#FFFF00"
+          menuBgColor="#7B68EE"
         />
-
-
-
 
         <AnimatedButton
           buttonText="Design"
@@ -78,7 +75,7 @@ const SearchBar = () => {
             { label: 'Branding', href: '/Design/branding' },
             { label: 'Motion', href: '/Design/motion' }
           ]}
-          menuBgColor="#7B68EE"
+          menuBgColor="#FF4500"
         />
 
         <AnimatedButton
