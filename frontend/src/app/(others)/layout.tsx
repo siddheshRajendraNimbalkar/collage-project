@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,17 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [loading, setLoading] = useState(true);
+  const route = useRouter()
 
   const handleNavigation = (path: string) => {
-    window.location.href = path;
+    console.log(path)
+    route.push(path)
   };
 
   const navItems = [
     { text: 'Home', icon: '🏠', path: '/' },
-    { text: 'Create Product', icon: '🎨', path: '/Selling/create' },
-    { text: 'Collections', icon: '📦', path: '/Selling/product' },
+    { text: 'Create Product', icon: '🎨', path: '/selling/create' },
+    { text: 'Collections', icon: '📦', path: '/selling/product' },
     { text: 'Discover', icon: '🔍', path: '/discover' }
   ];
 
@@ -107,10 +109,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               whileHover={{ scale: 1.05, x: 5 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
+              onClick={() => handleNavigation(item.path)}
             >
               <Button
                 className="w-full bg-transparent hover:bg-stone-100 text-stone-700 border-none flex items-center gap-4 p-4 rounded-xl transition-all duration-300 shadow-lg"
-                onClick={() => handleNavigation(item.path)}
               >
                 <motion.span className="text-xl">{item.icon}</motion.span>
                 {isExpanded && (

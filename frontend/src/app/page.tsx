@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
 import Footer from "@/components/Custom/common/Footer";
-import Navebar from "@/components/Custom/common/Navebar";
+import Navbar from "@/components/Custom/common/Navebar";
 import SearchBar from "@/components/Custom/common/SearchBar";
 
 export default function Home() {
@@ -9,13 +9,14 @@ export default function Home() {
     <>
       {/* Navbar */}
       <div className="relative z-50">
-        <Navebar />
+        <Navbar />
       </div>
 
       {/* Search Bar */}
-      <div className="mt-10 mb-20 z-40 relative">
+      <div className="min-h-[25vh] pt-6">
         <SearchBar />
       </div>
+      
 
       {/* Footer */}
       <Footer />

@@ -1,17 +1,21 @@
 'use client'
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import AnimatedButton from "./AnimatedButton";
+import OnlyBtn from "./OnlyButton";
+import { useRouter } from "next/navigation";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
+  const route = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle search logic
     console.log("Search:", query);
   };
 
   return (
+
     <div className="px-10 w-full">
       <form onSubmit={handleSubmit} className="relative">
         <FiSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-600" />
@@ -27,6 +31,117 @@ const SearchBar = () => {
                    focus:border-transparent rounded-xl"
         />
       </form>
+
+      <div className="mt-4 flex flex-wrap gap-4">
+
+        <OnlyBtn onClick={() => {
+          route.push('/')
+        }} className="bg-white text-black">
+          All
+        </OnlyBtn>
+
+
+        <AnimatedButton
+          buttonText="Art"
+          menuItems={[
+            { label: 'Photograph', href: '/Art/photograph' },
+            { label: 'Pattern', href: '/Art/pattern' },
+            { label: '3D', href: '/Art/3d' },
+            { label: 'Poster', href: '/Art/poster' },
+            { label: 'Picture', href: '/Art/picture' }
+          ]}
+          menuBgColor="#800000"
+        />
+
+        <AnimatedButton
+          buttonText="Poster"
+          menuItems={[
+            { label: 'Cars', href: '/Poster/cars' },
+            { label: 'Nature', href: '/Poster/nature' },
+            { label: 'Portrait', href: '/Poster/portrait' },
+            { label: 'Street', href: '/Poster/street' },
+            { label: 'Travel', href: '/Poster/travel' },
+            { label: 'Wildlife', href: '/Poster/wildlife' }
+          ]}
+          menuBgColor="#FFFF00"
+        />
+
+
+
+
+        <AnimatedButton
+          buttonText="Design"
+          menuItems={[
+            { label: 'Logo', href: '/Design/logo' },
+            { label: 'UI/UX', href: '/Design/uiux' },
+            { label: 'Illustration', href: '/Design/illustration' },
+            { label: 'Branding', href: '/Design/branding' },
+            { label: 'Motion', href: '/Design/motion' }
+          ]}
+          menuBgColor="#7B68EE"
+        />
+
+        <AnimatedButton
+          buttonText="Tech"
+          menuItems={[
+            { label: 'AI', href: '/Tech/ai' },
+            { label: 'Blockchain', href: '/Tech/blockchain' },
+            { label: 'Cybersecurity', href: '/Tech/cybersecurity' },
+            { label: 'Cloud Computing', href: '/Tech/cloud' },
+            { label: 'IoT', href: '/Tech/iot' }
+          ]}
+          menuBgColor="#4169E1"
+        />
+
+        <AnimatedButton
+          buttonText="Photography"
+          menuItems={[
+            { label: 'Nature', href: '/Photography/nature' },
+            { label: 'Portrait', href: '/Photography/portrait' },
+            { label: 'Street', href: '/Photography/street' },
+            { label: 'Travel', href: '/Photography/travel' },
+            { label: 'Wildlife', href: '/Photography/wildlife' }
+          ]}
+          menuBgColor="#C71585"
+        />
+
+        <AnimatedButton
+          buttonText="Fashion"
+          menuItems={[
+            { label: 'Babys', href: '/Fashion/babys' },
+            { label: 'Women', href: '/Fashion/women' },
+            { label: 'Men', href: '/Fashion/men' },
+            { label: 'Kids', href: '/Fashion/kids' },
+            { label: 'Animals', href: '/Fashion/animals' }
+          ]}
+          menuBgColor="#8B008B"
+        />
+
+
+        <AnimatedButton
+          buttonText="Electronics"
+          menuItems={[
+            { label: 'Mobile', href: '/Electronics/mobile' },
+            { label: 'Laptop', href: '/Electronics/laptop' },
+            { label: 'Skin', href: '/Electronics/skin' },
+            { label: 'tv', href: '/Electronics/tv' }
+          ]}
+          menuBgColor="#4B0082"
+        />
+
+        <AnimatedButton
+          buttonText="Books"
+          menuItems={[
+            { label: 'Story', href: '/Books/story' },
+            { label: 'Knowledge', href: '/Books/knowledge' },
+            { label: 'Manga', href: '/Books/manga' },
+            { label: 'Fiction', href: '/Books/fiction' },
+            { label: 'Business', href: '/Books/business' }
+          ]}
+          menuBgColor="#008000"
+        />
+
+      </div>
     </div>
   );
 };

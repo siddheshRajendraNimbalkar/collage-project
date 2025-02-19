@@ -1,7 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+'use client'
+import { useState } from "react";
 import * as z from "zod";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -13,16 +11,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
 import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage";
+
+// Dialog components
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const Page = () => {
-  const params = useParams();
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const [message, setMessage] = useState<string | null>(null); // Custom message state
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null); // For success/error distinction
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog visibility state
+  
   const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
@@ -48,69 +46,20 @@ const Page = () => {
     },
   });
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("Authentication Error: No token found");
-        
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/v1/api/productId`,
-          { id: params.productID }, 
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-  
-        const productData = response.data.product;
-        // Update form with existing data
-        form.setValue("name",productData.name)
-        
-        form.setValue("description", productData.description)
-        form.setValue("price", productData.price)
-        form.setValue("stock", productData.stock)
-        form.setValue("product_url", productData.product_url)
-        form.setValue("category", productData.category)
-        form.setValue("type", productData.type)
-        
-      } catch (error) {
-        setMessage("Failed to load product data");
-        setMessageType("error");
-        setIsDialogOpen(true);
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-  
-    if (params.productID) {
-      fetchProduct();
-    }
-  }, [params.productId]); // Keep the dependency
-
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
-      setMessage(null);
+      setMessage(null); 
 
       const token = localStorage.getItem("token");
+
       if (!token) {
-        throw new Error("Authentication Error: No token found");
+        throw new Error("Authentication Error: No authentication token found.");
       }
+
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/api/updateProduct`,
-        {
-          id:params.productID,
-          name:data.name,
-          description:data.description,
-          price:data.price,
-          product_url:data.product_url,
-          category:data.category,
-          type:data.type,
-          stock:data.stock
-        },
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/api/createProduct`,
+        data,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -119,18 +68,20 @@ const Page = () => {
         }
       );
 
-
-      if (response.data.message) {
+      if(response.data.message){
         setMessage(response.data.message);
         setMessageType("error");
-      } else {
-        setMessage("Product updated successfully!");
+      }else{
+        setMessage("Product created successfully!");
         setMessageType("success");
       }
-    } catch (error: any) {
+
       
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+
       if (axios.isAxiosError(error)) {
-        const errorMessage = error?.response?.data?.message || "Failed to update product.";
+        const errorMessage = error?.response?.data?.message || "Failed to create product.";
         setMessage(errorMessage);
         setMessageType("error");
       } else {
@@ -139,24 +90,16 @@ const Page = () => {
       }
     } finally {
       setLoading(false);
-      setIsDialogOpen(true);
+      setIsDialogOpen(true); // Open the dialog box after operation
     }
   };
-
-  if (initialLoading) {
-    return (
-      <div className="container mx-auto p-6 flex justify-center items-center">
-        <p>Loading product data...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-6 max-w-3xl">
       <Card className="shadow-lg border border-gray-200 rounded-xl bg-white">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-semibold text-gray-800">
-            Update Product
+            Add New Product
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -170,11 +113,12 @@ const Page = () => {
                   <FormItem className="flex flex-col items-center relative">
                     <FormLabel>Image</FormLabel>
                     <FormControl>
-                      
+                      <div className="relative w-fit">
                         <SingleImageDropzoneUsage
                           values={field.value}
                           onChange={field.onChange}
                         />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -229,7 +173,9 @@ const Page = () => {
                           placeholder="Enter price"
                           step="0.01"
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(parseFloat(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -247,7 +193,9 @@ const Page = () => {
                           type="number"
                           placeholder="Enter stock quantity"
                           {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -269,7 +217,7 @@ const Page = () => {
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger >
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
@@ -317,7 +265,7 @@ const Page = () => {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={loading}
               >
-                {loading ? "Updating..." : "Update Product"}
+                {loading ? "Submitting..." : "Submit Product"}
               </Button>
             </form>
           </Form>
@@ -332,12 +280,7 @@ const Page = () => {
             <DialogDescription>{message}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              onClick={() => setIsDialogOpen(false)} 
-              className={`${messageType === 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}
-            >
-              Close
-            </Button>
+            <Button onClick={() => setIsDialogOpen(false)} className={`${messageType == 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -345,4 +288,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Page;  

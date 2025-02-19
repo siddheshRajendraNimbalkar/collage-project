@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -151,7 +151,7 @@ const ProductPage = () => {
             {filteredProducts.map((product: any, index: number) => (
               <Card
               key={product.id}
-              className="bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="bg-white border cursor-pointer border-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
               style={{
                 animationName: 'fadeInUp',
                 animationDuration: '0.5s',
@@ -160,10 +160,10 @@ const ProductPage = () => {
                 animationFillMode: 'forwards',
               }}
               onClick={()=>{
-                router.push(`/Selling/product/${product.id}`)
+                router.push(`/selling/product/${product.id}`)
               }}
             >
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2" >
                   <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
                   <span className="text-gray-500 text-sm">{product.type}</span>
                 </CardHeader>
