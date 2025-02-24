@@ -28,6 +28,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot connect to database: %v", err)
 	}
+	if err = conn.Ping(); err != nil {
+		log.Fatalf("Database is not reachable: %v", err)
+	} else {
+		log.Println("Database connection successful!")
+	}
+
 	store := db.NewStore(conn)
 	go grpcClient(*store, config)
 	grpcApiClient(*store, config)
@@ -57,7 +63,7 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 	}
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // Adjust as per your frontend's URL
+		AllowedOrigins:   []string{"http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,

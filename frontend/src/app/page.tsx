@@ -4,7 +4,6 @@ import Footer from "@/components/Custom/common/Footer";
 import Navbar from "@/components/Custom/common/Navebar";
 import SearchBar from "@/components/Custom/common/SearchBar";
 import SwiperSlider from "@/components/Custom/common/slider";
-import SlidingProductCard from "@/components/Custom/common/slider";
 
 export default function Home() {
   return (
@@ -13,7 +12,7 @@ export default function Home() {
         <Navbar />
       </div>
 
-      <div className="min-h-[25vh] pt-6 relative z-50 border-b-[1px] border-white">
+      <div className="min-h-[25vh] pt-6 relative z-40 border-b-[1px] border-white bg-[#242423]">
         <SearchBar />
       </div>
       <div>

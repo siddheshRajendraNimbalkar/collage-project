@@ -11,7 +11,7 @@ message Order {
   string product_id = 3;
   int32 quantity = 4;
   double total_price = 5;
-  string status = 6; // "pending", "completed", "cancelled"
+  string status = 6; 
   string created_at = 7;
 }
 

@@ -16,7 +16,7 @@ const SearchBar = () => {
 
   return (
 
-    <div className="px-10 w-full">
+    <div className="px-10 w-full ">
       <form onSubmit={handleSubmit} className="relative">
         <FiSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-600" />
         <input
@@ -47,7 +47,6 @@ const SearchBar = () => {
             { label: 'Photograph', href: '/Art/photograph' },
             { label: 'Pattern', href: '/Art/pattern' },
             { label: '3D', href: '/Art/3d' },
-            { label: 'Poster', href: '/Art/poster' },
             { label: 'Picture', href: '/Art/picture' }
           ]}
           menuBgColor="#FFFF00"
@@ -58,10 +57,8 @@ const SearchBar = () => {
           menuItems={[
             { label: 'Cars', href: '/Poster/cars' },
             { label: 'Nature', href: '/Poster/nature' },
-            { label: 'Portrait', href: '/Poster/portrait' },
-            { label: 'Street', href: '/Poster/street' },
-            { label: 'Travel', href: '/Poster/travel' },
-            { label: 'Wildlife', href: '/Poster/wildlife' }
+            { label: 'Wildlife', href: '/Poster/wildlife' },
+            { label: 'Other', href: '/Poster/other' }
           ]}
           menuBgColor="#7B68EE"
         />
@@ -121,7 +118,7 @@ const SearchBar = () => {
             { label: 'Mobile', href: '/Electronics/mobile' },
             { label: 'Laptop', href: '/Electronics/laptop' },
             { label: 'Skin', href: '/Electronics/skin' },
-            { label: 'tv', href: '/Electronics/tv' }
+            { label: 'TV', href: '/Electronics/tv' }
           ]}
           menuBgColor="#4B0082"
         />

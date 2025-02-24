@@ -12,15 +12,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
 import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage";
 
-// Dialog components
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
+const categoryTypes: Record<string, string[]> = {
+  art: ["Photograph", "Pattern", "3d","Picture"],
+  poster: ["Cars", "Nature","Wildlife"],
+  design: ["Logo", "UI/UX", "Lllustration","branding","Motion"],
+  tech: ["Blockchain", "Cybersecurity", "AI","Cloud","IOT"],
+  photography: ["Nature", "Portrait", "Street","Travel","Wildlife"],
+  fashion: ["Babys", "Women", "Men","Kids","Animals"],
+  electronics: ["Mobile", "Laptop", "Skin","Tv"],
+  books: ["Story", "Knowledge", "Manga","Fiction","Business"],
+};
+
 
 const Page = () => {
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null); // Custom message state
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null); // For success/error distinction
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog visibility state
-  
+  const [message, setMessage] = useState<string | null>(null); 
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null); 
+  const [isDialogOpen, setIsDialogOpen] = useState(false); 
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
+  const availableTypes = selectedCategory ? categoryTypes[selectedCategory] || [] : [];
+
   const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
@@ -49,7 +63,7 @@ const Page = () => {
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
-      setMessage(null); 
+      setMessage(null);
 
       const token = localStorage.getItem("token");
 
@@ -68,15 +82,15 @@ const Page = () => {
         }
       );
 
-      if(response.data.message){
+      if (response.data.message) {
         setMessage(response.data.message);
         setMessageType("error");
-      }else{
+      } else {
         setMessage("Product created successfully!");
         setMessageType("success");
       }
 
-      
+
     } catch (error: any) {
       console.error("Error creating product:", error);
 
@@ -90,7 +104,7 @@ const Page = () => {
       }
     } finally {
       setLoading(false);
-      setIsDialogOpen(true); // Open the dialog box after operation
+      setIsDialogOpen(true); 
     }
   };
 
@@ -205,53 +219,47 @@ const Page = () => {
               </div>
 
               {/* Category and Type */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger >
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="paintings">Paintings</SelectItem>
-                          <SelectItem value="sculptures">Sculptures</SelectItem>
-                          <SelectItem value="photography">Photography</SelectItem>
-                          <SelectItem value="digital">Digital Art</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
+                <FormField control={form.control} name="category" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedCategory(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
+                      <SelectContent className="bg-white">
+                        {Object.keys(categoryTypes).map((category) => (
+                          <SelectItem key={category} value={category} className="cursor-pointer">{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+
                 <FormField
                   control={form.control}
                   name="type"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white">
-                          <SelectItem value="original">Original</SelectItem>
-                          <SelectItem value="print">Print</SelectItem>
-                          <SelectItem value="limited">Limited Edition</SelectItem>
-                          <SelectItem value="commission">Commission</SelectItem>
+                          {availableTypes.map((type: string) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />

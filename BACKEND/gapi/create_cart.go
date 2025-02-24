@@ -13,12 +13,16 @@ import (
 
 func (server *Server) AddToCart(ctx context.Context, req *pb.AddToCartRequest) (*pb.CartResponse, error) {
 
-	if req.GetUserId() == "" || req.GetProductId() == "" || req.GetQuantity() <= 0 {
+	if req.GetProductId() == "" || req.GetQuantity() <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid cart details")
 	}
 
-	// Convert UUIDs
-	userID, err := uuid.Parse(req.GetUserId())
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+
+	userID, err := uuid.Parse(token.ID.String())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format")
 	}

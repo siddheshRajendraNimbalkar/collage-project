@@ -15,6 +15,17 @@ import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "
 import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
+const categoryTypes: Record<string, string[]> = {
+  art: ["Photograph", "Pattern", "3d", "Picture"],
+  poster: ["Cars", "Nature", "Wildlife"],
+  design: ["Logo", "UI/UX", "Lllustration", "branding", "Motion"],
+  tech: ["Blockchain", "Cybersecurity", "AI", "Cloud", "IOT"],
+  photography: ["Nature", "Portrait", "Street", "Travel", "Wildlife"],
+  fashion: ["Babys", "Women", "Men", "Kids", "Animals"],
+  electronics: ["Mobile", "Laptop", "Skin", "Tv"],
+  books: ["Story", "Knowledge", "Manga", "Fiction", "Business"],
+};
+
 const Page = () => {
   const params = useParams();
   const [loading, setLoading] = useState(false);
@@ -22,6 +33,8 @@ const Page = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const availableTypes = selectedCategory ? categoryTypes[selectedCategory] || [] : [];
 
   const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -53,10 +66,10 @@ const Page = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Authentication Error: No token found");
-        
+
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/v1/api/productId`,
-          { id: params.productID }, 
+          { id: params.productID },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -64,18 +77,21 @@ const Page = () => {
             },
           }
         );
-  
+
         const productData = response.data.product;
         // Update form with existing data
-        form.setValue("name",productData.name)
-        
+        form.setValue("name", productData.name)
+
         form.setValue("description", productData.description)
         form.setValue("price", productData.price)
         form.setValue("stock", productData.stock)
         form.setValue("product_url", productData.product_url)
         form.setValue("category", productData.category)
         form.setValue("type", productData.type)
-        
+        console.log(form.watch("type"));
+
+        setSelectedCategory(productData.category);
+
       } catch (error) {
         setMessage("Failed to load product data");
         setMessageType("error");
@@ -84,7 +100,7 @@ const Page = () => {
         setInitialLoading(false);
       }
     };
-  
+
     if (params.productID) {
       fetchProduct();
     }
@@ -102,14 +118,14 @@ const Page = () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/v1/api/updateProduct`,
         {
-          id:params.productID,
-          name:data.name,
-          description:data.description,
-          price:data.price,
-          product_url:data.product_url,
-          category:data.category,
-          type:data.type,
-          stock:data.stock
+          id: params.productID,
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          product_url: data.product_url,
+          category: data.category,
+          type: data.type,
+          stock: data.stock
         },
         {
           headers: {
@@ -128,7 +144,7 @@ const Page = () => {
         setMessageType("success");
       }
     } catch (error: any) {
-      
+
       if (axios.isAxiosError(error)) {
         const errorMessage = error?.response?.data?.message || "Failed to update product.";
         setMessage(errorMessage);
@@ -170,11 +186,11 @@ const Page = () => {
                   <FormItem className="flex flex-col items-center relative">
                     <FormLabel>Image</FormLabel>
                     <FormControl>
-                      
-                        <SingleImageDropzoneUsage
-                          values={field.value}
-                          onChange={field.onChange}
-                        />
+
+                      <SingleImageDropzoneUsage
+                        values={field.value}
+                        onChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -257,53 +273,47 @@ const Page = () => {
               </div>
 
               {/* Category and Type */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="paintings">Paintings</SelectItem>
-                          <SelectItem value="sculptures">Sculptures</SelectItem>
-                          <SelectItem value="photography">Photography</SelectItem>
-                          <SelectItem value="digital">Digital Art</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
+                <FormField control={form.control} name="category" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedCategory(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
+                      <SelectContent className="bg-white">
+                        {Object.keys(categoryTypes).map((category) => (
+                          <SelectItem key={category} value={category} className="cursor-pointer">{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+
                 <FormField
                   control={form.control}
                   name="type"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white">
-                          <SelectItem value="original">Original</SelectItem>
-                          <SelectItem value="print">Print</SelectItem>
-                          <SelectItem value="limited">Limited Edition</SelectItem>
-                          <SelectItem value="commission">Commission</SelectItem>
+                          {availableTypes.map((type: string) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -332,8 +342,8 @@ const Page = () => {
             <DialogDescription>{message}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              onClick={() => setIsDialogOpen(false)} 
+            <Button
+              onClick={() => setIsDialogOpen(false)}
               className={`${messageType === 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}
             >
               Close

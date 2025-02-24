@@ -61,6 +61,7 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 			ProductUrl:  product.ProductUrl,
 			Category:    product.Category,
 			Type:        product.Type,
+			Stock:       product.Stock,
 		},
 	}
 
@@ -105,6 +106,7 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 			ProductUrl:  product.ProductUrl,
 			Category:    product.Category,
 			Type:        product.Type,
+			Stock:       product.Stock,
 		},
 	}
 
@@ -173,6 +175,7 @@ func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 			ProductUrl:  updatedProduct.ProductUrl,
 			Category:    updatedProduct.Category,
 			Type:        updatedProduct.Type,
+			Stock:       product.Stock,
 		},
 	}
 
@@ -210,6 +213,7 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 			Price:       parseFloat(product.Price),
 			CreatedBy:   product.CreatedBy.UUID.String(),
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Stock:       product.Stock,
 		})
 	}
 
@@ -241,6 +245,7 @@ func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllPro
 			Category:    product.Category,
 			Type:        product.Type,
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Stock:       product.Stock,
 		})
 	}
 
@@ -274,11 +279,48 @@ func (server *Server) GetProductByUserID(ctx context.Context, req *pb.ListAllPro
 			Category:    product.Category,
 			Type:        product.Type,
 			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Stock:       product.Stock,
 		})
 	}
 
 	resp := &pb.ListAllProductsByNameResponse{
 		Products: productResponses,
+	}
+
+	return resp, nil
+}
+
+func (server *Server) GetOnlyProductRequest(ctx context.Context, req *pb.GetProductRequest) (*pb.ProductResponse, error) {
+	if req.GetId() == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "product ID is required")
+	}
+
+	productID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
+	}
+
+	product, err := server.store.GetProductByID(ctx, productID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "product not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
+	}
+
+	resp := &pb.ProductResponse{
+		Product: &pb.Product{
+			Id:          product.ID.String(),
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       parseFloat(product.Price),
+			CreatedBy:   product.CreatedBy.UUID.String(),
+			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+			Stock:       product.Stock,
+		},
 	}
 
 	return resp, nil

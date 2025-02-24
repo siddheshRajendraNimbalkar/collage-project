@@ -58,7 +58,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
             {menuItems.map((item) => (
               <div
                 key={item.label}
-                className="px-4 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 onClick={() => {
                   route.push(`${item.href}`);
                 }}

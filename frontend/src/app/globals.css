@@ -118,3 +118,18 @@ body {
 .swiper-button-next:hover {
   opacity: 0.8;
 }
+
+
+
+@layer base {}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

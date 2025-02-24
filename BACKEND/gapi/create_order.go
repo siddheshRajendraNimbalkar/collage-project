@@ -12,7 +12,16 @@ import (
 )
 
 func (server *Server) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
-	result, err := server.store.OrderTx(ctx, req)
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+	}
+	myOrder := &pb.CreateOrderRequest{
+		UserId:    token.ID.String(),
+		ProductId: req.ProductId,
+		Quantity:  req.Quantity,
+	}
+	result, err := server.store.OrderTx(ctx, myOrder)
 	if err != nil {
 		if err.Error() == "user not found" || err.Error() == "product not found" {
 			return nil, status.Errorf(codes.Internal, "%v", err)

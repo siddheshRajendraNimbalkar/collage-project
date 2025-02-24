@@ -69,6 +69,13 @@ service CollageProject {
               body: "*"
            };
     }
+
+    rpc GetOnlyProductRequest(GetProductRequest) returns (ProductResponse){
+      option (google.api.http) = {
+              post: "/v1/api/productOnlyId"
+              body: "*"
+           };
+    }
     
     rpc GetProductByUserID(ListAllProductsByCreateBy) returns (ListAllProductsByNameResponse){
       option (google.api.http) = {
