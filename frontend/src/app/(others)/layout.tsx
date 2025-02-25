@@ -25,7 +25,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Home', icon: '🏠', path: '/' },
     { text: 'Create Product', icon: '🎨', path: '/selling/create' },
     { text: 'Collections', icon: '📦', path: '/selling/product' },
-    { text: 'Discover', icon: '🔍', path: '/discover' }
+    { text: 'Discover', icon: '🔍', path: '/discover' },
+    { text: 'User', icon: '👥', path: '/users' }
   ];
 
   const router = useRouter();

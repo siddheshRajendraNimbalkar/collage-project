@@ -1,10 +1,11 @@
 'use client'
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import Avatar from "@/components/Custom/common/ChangeAvater"; 
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,18 +13,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertCircle } from "lucide-react";
 
 const SignIn = () => {
+  const defaultImage = "https://wallpaperaccess.com/full/355397.png"
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     role: "",
     organization_name: "",
-    user_image: "",
+    user_image: defaultImage,
   });
 
-  const [error, setError] = useState<string | null>(null);  
-  const [loading, setLoading] = useState(false); 
-  const router = useRouter(); 
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,6 +36,11 @@ const SignIn = () => {
 
   const handleRoleChange = (value: string) => {
     setFormData(prev => ({ ...prev, role: value }));
+    setError(null);
+  };
+
+  const handleAvatarChange = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, user_image: imageUrl }));
     setError(null);
   };
 
@@ -112,20 +120,30 @@ const SignIn = () => {
     <div className="min-h-screen flex items-center justify-center">
       <Card className="max-w-md w-full p-6 bg-white shadow-lg rounded-xl">
         <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">Create Account</h2>
-
+        
+        {/* Avatar component integration */}
+        <div className="flex justify-center mb-6">
+          <Avatar 
+            size={96} 
+            className="border-2 border-gray-300" 
+            onChange={handleAvatarChange}
+          />
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           {[
             { id: "name", label: "Name", type: "text", placeholder: "Your Name" },
             { id: "email", label: "Email", type: "email", placeholder: "your@email.com" },
             { id: "password", label: "Password", type: "password", placeholder: "••••••••" },
             { id: "organization_name", label: "Organization Name", type: "text", placeholder: "Organization Name" },
-            { id: "user_image", label: "Profile Image URL (optional)", type: "url", placeholder: "https://example.com/avatar.jpg" },
           ].map((field) => (
             <div key={field.id}>
               <Label htmlFor={field.id} className="text-gray-700">{field.label}</Label>
               <Input
-                {...field}
+                id={field.id}
                 name={field.id}
+                type={field.type}
+                placeholder={field.placeholder}
                 value={formData[field.id as keyof typeof formData]}
                 onChange={handleChange}
                 disabled={loading}
@@ -155,7 +173,7 @@ const SignIn = () => {
               </SelectContent>
             </Select>
           </div>
-
+          
           <Button 
             type="submit" 
             className="w-full mt-6" 

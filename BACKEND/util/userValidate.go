@@ -67,11 +67,6 @@ func ValidateUpdateInput(req *pb.UpdateUserRequest) error {
 		return errors.New("name cannot be empty")
 	}
 
-	// Validate email format
-	if _, err := mail.ParseAddress(req.GetEmail()); err != nil {
-		return errors.New("invalid email format")
-	}
-
 	validRoles := map[string]bool{"college_staff": true, "ngo_staff": true, "self_staff": true}
 	if !validRoles[req.GetRole()] {
 		return errors.New("invalid role")

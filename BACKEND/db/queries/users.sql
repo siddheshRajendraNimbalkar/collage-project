@@ -15,5 +15,11 @@ SET name = $2, email = $3, role = $4, organization_name = $5, user_image = $6
 WHERE id = $1
 RETURNING id, name, email, role, organization_name, user_image, created_at;
 
+-- name: UpdateUserWithoutEmail :one
+UPDATE users
+SET name = $2, role = $3, organization_name = $4, user_image = $5
+WHERE id = $1
+RETURNING id, name, email, role, organization_name, user_image, created_at;
+
 -- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1;

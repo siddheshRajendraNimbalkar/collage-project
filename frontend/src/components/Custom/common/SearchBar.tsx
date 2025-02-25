@@ -4,6 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import AnimatedButton from "./AnimatedButton";
 import OnlyBtn from "./OnlyButton";
 import { useRouter } from "next/navigation";
+import OnlyAvatar from "./Avater";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
@@ -133,6 +134,12 @@ const SearchBar = () => {
             { label: 'Business', href: '/Books/business' }
           ]}
           menuBgColor="#008000"
+        />
+
+        <OnlyAvatar src="https://imgs.search.brave.com/sLqQS8mv9Yeh-OrDvoWYExWU7QoHekyYWBehzPHCdBE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9t/ZWRpdW0tc2hvdC1h/bmltZS1zdHlsZS1t/YW4tcG9ydHJhaXRf/MjMtMjE1MTA2NzQ1/MS5qcGc_c2VtdD1h/aXNfaHlicmlk" alt="avater" 
+          onClick={() => {
+            route.push('/users')
+          }}
         />
 
       </div>

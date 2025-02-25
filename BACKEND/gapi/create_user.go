@@ -3,7 +3,6 @@ package gapi
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -167,11 +166,11 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 }
 
 func (server *Server) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
-	id, err := uuid.Parse(req.GetId())
+	token, err := server.AuthInterceptor(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
-	user, err := server.store.GetUserByID(ctx, id)
+	user, err := server.store.GetUserByID(ctx, token.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -202,31 +201,36 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
 
-	fmt.Println(token)
+	user, err := server.store.GetUserByID(ctx, token.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "user not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
+	}
 
-	arg := db.UpdateUserParams{
-		ID:               token.ID,
+	arg := db.UpdateUserWithoutEmailParams{
+		ID:               user.ID,
 		Name:             req.GetName(),
-		Email:            req.GetEmail(),
 		UserImage:        req.GetUserImage(),
 		Role:             req.GetRole(),
 		OrganizationName: req.GetOrganizationName(),
 	}
 
-	updatedUser, err := server.store.UpdateUser(ctx, arg)
+	updatedUser1, err := server.store.UpdateUserWithoutEmail(ctx, arg)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
 	}
 
 	return &pb.UserResponse{
 		User: &pb.User{
-			Id:               updatedUser.ID.String(),
-			Name:             updatedUser.Name,
-			Email:            updatedUser.Email,
-			UserImage:        updatedUser.UserImage,
-			Role:             updatedUser.Role,
-			OrganizationName: updatedUser.OrganizationName,
-			CreatedAt:        updatedUser.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Id:               updatedUser1.ID.String(),
+			Name:             updatedUser1.Name,
+			Email:            updatedUser1.Email,
+			UserImage:        updatedUser1.UserImage,
+			Role:             updatedUser1.Role,
+			OrganizationName: updatedUser1.OrganizationName,
+			CreatedAt:        updatedUser1.CreatedAt.Time.Format("2006-01-02 15:04:05"),
 		},
 	}, nil
 }

@@ -42,7 +42,6 @@ message RefreshTokenResponse {
 }
 
 message GetUserRequest {
-  string id = 1;
 }
 
 message GetUserByEmailRequest {

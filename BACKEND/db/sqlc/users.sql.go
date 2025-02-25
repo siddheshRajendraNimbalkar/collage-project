@@ -146,3 +146,49 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateU
 	)
 	return i, err
 }
+
+const updateUserWithoutEmail = `-- name: UpdateUserWithoutEmail :one
+UPDATE users
+SET name = $2, role = $3, organization_name = $4, user_image = $5
+WHERE id = $1
+RETURNING id, name, email, role, organization_name, user_image, created_at
+`
+
+type UpdateUserWithoutEmailParams struct {
+	ID               uuid.UUID `db:"id" json:"id"`
+	Name             string    `db:"name" json:"name"`
+	Role             string    `db:"role" json:"role"`
+	OrganizationName string    `db:"organization_name" json:"organization_name"`
+	UserImage        string    `db:"user_image" json:"user_image"`
+}
+
+type UpdateUserWithoutEmailRow struct {
+	ID               uuid.UUID    `db:"id" json:"id"`
+	Name             string       `db:"name" json:"name"`
+	Email            string       `db:"email" json:"email"`
+	Role             string       `db:"role" json:"role"`
+	OrganizationName string       `db:"organization_name" json:"organization_name"`
+	UserImage        string       `db:"user_image" json:"user_image"`
+	CreatedAt        sql.NullTime `db:"created_at" json:"created_at"`
+}
+
+func (q *Queries) UpdateUserWithoutEmail(ctx context.Context, arg UpdateUserWithoutEmailParams) (UpdateUserWithoutEmailRow, error) {
+	row := q.db.QueryRowContext(ctx, updateUserWithoutEmail,
+		arg.ID,
+		arg.Name,
+		arg.Role,
+		arg.OrganizationName,
+		arg.UserImage,
+	)
+	var i UpdateUserWithoutEmailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Role,
+		&i.OrganizationName,
+		&i.UserImage,
+		&i.CreatedAt,
+	)
+	return i, err
+}
