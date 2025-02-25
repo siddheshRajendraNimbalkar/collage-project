@@ -34,10 +34,10 @@ const Page = () => {
     const [cartOpen, setCartOpen] = useState(false);
     const [orderOpen, setOrderOpen] = useState(false);
     const [orderError, setOrderError] = useState<null | String>(null);
-    const [cartMessage,setCartMessage] = useState<null | String>(null);
+    const [cartMessage, setCartMessage] = useState<null | String>(null);
     const router = useRouter();
     const [quantity, setQuantity] = useState(1);
-    const [okCreateOrder,setokCreateOrder] = useState(true)
+    const [okCreateOrder, setokCreateOrder] = useState(true)
 
     const incrementQuantity = () => {
         if (quantity < product.stock) {
@@ -71,9 +71,9 @@ const Page = () => {
                     }
                 }
             );
-            if(response.data.message == "Item added to cart successfully"){
+            if (response.data.message == "Item added to cart successfully") {
                 setCartMessage(response.data.message)
-            }else {
+            } else {
                 setCartMessage(response.data.message)
             }
             console.log(response.data)
@@ -106,9 +106,9 @@ const Page = () => {
                     }
                 }
             );
-            if(response.data.message){
+            if (response.data.message) {
                 setOrderError(response.data.message)
-            }else {
+            } else {
                 setOrderOpen(false)
                 setokCreateOrder(!okCreateOrder)
             }
@@ -155,7 +155,7 @@ const Page = () => {
         };
 
         fetchProduct();
-    }, [params?.productId,okCreateOrder]);
+    }, [params?.productId, okCreateOrder]);
 
     if (loading) {
         return (
@@ -208,18 +208,19 @@ const Page = () => {
                         <div className="space-y-8 ">
                             <div className="space-y-4">
                                 <div className="">
-                                    <div className="bg-[#3B1C32] p-4 rounded-2xl flex justify-between mb-2">
+                                    <div className="bg-[#FFA541] p-4 rounded-2xl flex justify-between mb-2">
                                         <div>
                                             <h1 className="text-4xl font-bold text-white mb-3">{product.name}</h1>
                                         </div>
                                         {product.isNew ?
-                                            <div className='bg-orange-500 flex justify-between items-center text-white pl-4 pr-4 pt-2 pb-2 mb-3 rounded-2xl'>
-                                                <div className='h-3 w-3 bg-white mr-3 rounded-3xl'></div>
-                                                <div>2-Hand</div>
-                                            </div> :
                                             <div className='bg-green-500 cursor-pointer flex justify-between items-center text-white pl-4 pr-4 pt-2 pb-2 mb-3 rounded-2xl'>
                                                 <div className='h-3 w-3 bg-white mr-3 rounded-3xl'></div>
                                                 <div>New</div>
+                                            </div>
+                                            :
+                                            <div className='bg-[#F20D25] flex justify-between items-center text-white pl-4 pr-4 pt-2 pb-2 mb-3 rounded-2xl'>
+                                                <div className='h-3 w-3 bg-white mr-3 rounded-3xl'></div>
+                                                <div>2-Hand</div>
                                             </div>
                                         }
                                     </div>
@@ -330,7 +331,7 @@ const Page = () => {
                             <div className='font-semibold'>
                                 {cartMessage == "Item added to cart successfully" ?
                                     <div className='text-green-700'>{cartMessage}</div> : <div className='text-rose-700'>{cartMessage}</div>
-                                } 
+                                }
                             </div>
                         </DrawerDescription>
                     </DrawerHeader>
@@ -416,27 +417,27 @@ const Page = () => {
                     </div>
                     <DrawerFooter className="flex-row gap-3 justify-end px-6 pb-6">
                         <div>
-                        <div>
-                        {
-                            orderError ? <div className='mb-4 bg-red-600 p-4'>
-                                {orderError}
-                            </div> : null
-                        }
-                        </div>
-                        <div>
-                        <Button
-                            variant="outline"
-                            onClick={() => setOrderOpen(false)}
-                            className="border-white/20 bg-rose-800 hover:bg-white hover:text-black"
-                        >
-                            Cancel
-                        </Button>
-                        <Button className="bg-green-500 hover:bg-green-600"
-                        onClick={CreateMyOrder}
-                        >
-                            Confirm Purchase
-                        </Button>
-                        </div>
+                            <div>
+                                {
+                                    orderError ? <div className='mb-4 bg-red-600 p-4'>
+                                        {orderError}
+                                    </div> : null
+                                }
+                            </div>
+                            <div>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setOrderOpen(false)}
+                                    className="border-white/20 bg-rose-800 hover:bg-white hover:text-black"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button className="bg-green-500 hover:bg-green-600"
+                                    onClick={CreateMyOrder}
+                                >
+                                    Confirm Purchase
+                                </Button>
+                            </div>
                         </div>
                     </DrawerFooter>
                 </DrawerContent>

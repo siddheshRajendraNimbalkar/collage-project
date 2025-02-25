@@ -58,23 +58,16 @@ func (server *Server) AddToCart(ctx context.Context, req *pb.AddToCartRequest) (
 
 func (server *Server) GetCartByUser(ctx context.Context, req *pb.GetCartRequest) (*pb.CartListResponse, error) {
 	// Validate request
-	if req.GetUserId() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "user ID is required")
-	}
-
-	// Convert UUID
-	userID, err := uuid.Parse(req.GetUserId())
+	token, err := server.AuthInterceptor(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format")
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
 
-	// Fetch cart items
-	cartItems, err := server.store.GetCartByUserID(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	cartItems, err := server.store.GetCartByUserID(ctx, uuid.NullUUID{UUID: token.ID, Valid: true})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to fetch cart items")
 	}
 
-	// Convert to protobuf response
 	var pbCartItems []*pb.CartItem
 	for _, item := range cartItems {
 		pbCartItems = append(pbCartItems, &pb.CartItem{
@@ -145,31 +138,17 @@ func (server *Server) UpdateCartQuantity(ctx context.Context, req *pb.UpdateCart
 
 func (server *Server) RemoveFromCart(ctx context.Context, req *pb.RemoveFromCartRequest) (*pb.CartResponse, error) {
 	// Validate request
-	if req.GetUserId() == "" || req.GetProductId() == "" {
+	if req.GetId() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid cart details")
 	}
 
-	// Convert UUIDs
-	userID, err := uuid.Parse(req.GetUserId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format")
-	}
-	productID, err := uuid.Parse(req.GetProductId())
+	myCart, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
 	}
 
-	// Check if cart item exists
-	myCart, err := server.store.GetCartItem(ctx, db.GetCartItemParams{
-		UserID:    uuid.NullUUID{UUID: userID, Valid: true},
-		ProductID: uuid.NullUUID{UUID: productID, Valid: true},
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "cart item not found")
-	}
-
 	// Remove item from cart
-	err = server.store.DeleteCartItem(ctx, myCart.ID)
+	err = server.store.DeleteCartItem(ctx, myCart)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to remove cart item")
 	}
