@@ -26,7 +26,6 @@ message GetOrderRequest {
 }
 
 message ListOrdersByUserRequest {
-  string user_id = 1;
 }
 
 message ListOrdersResponse {

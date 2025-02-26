@@ -68,11 +68,12 @@ func (server *Server) GetOrderByID(ctx context.Context, req *pb.GetOrderRequest)
 
 // ListOrders - Retrieves all orders with pagination
 func (server *Server) ListOrders(ctx context.Context, req *pb.ListOrdersByUserRequest) (*pb.ListOrdersResponse, error) {
-	if req.UserId == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "order ID is required")
+	token, err := server.AuthInterceptor(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
 
-	userID, err := uuid.Parse(req.GetUserId())
+	userID, err := uuid.Parse(token.ID.URN())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format")
 	}
