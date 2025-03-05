@@ -362,3 +362,80 @@ func (server *Server) GetOnlyProductRequest(ctx context.Context, req *pb.GetProd
 
 	return resp, nil
 }
+
+func (server *Server) ListProductsByCategory(ctx context.Context, req *pb.ListAllProductsByCategoryRequest) (*pb.ListAllProductsByCategoryResponse, error) {
+	if len(strings.TrimSpace(req.GetCategory())) >= 2 {
+		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
+	}
+
+	products, err := server.store.ListProductsByCategory(ctx, req.GetCategory())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list products: %v", err)
+	}
+
+	productResponses := []*pb.Product{}
+
+	for _, product := range products {
+		productResponses = append(productResponses, &pb.Product{
+			Id:          product.ID.String(),
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       parseFloat(product.Price),
+			CreatedBy:   product.CreatedBy.UUID.String(),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Stock:       product.Stock,
+		})
+	}
+
+	resp := &pb.ListAllProductsByCategoryResponse{
+		Products: productResponses,
+	}
+
+	return resp, nil
+}
+
+func (server *Server) ListProductsByType(ctx context.Context, req *pb.ListAllProductsByTypeRequest) (*pb.ListAllProductsByCategoryResponse, error) {
+	if len(strings.TrimSpace(req.GetCategory())) >= 2 {
+		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
+	}
+
+	if len(strings.TrimSpace(req.GetType())) >= 2 {
+		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
+	}
+
+	data := db.ListProductsByTypeParams{
+		Category: req.GetCategory(),
+		Type:     req.GetType(),
+	}
+
+	products, err := server.store.ListProductsByType(ctx, data)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list products: %v", err)
+	}
+
+	productResponses := []*pb.Product{}
+
+	for _, product := range products {
+		productResponses = append(productResponses, &pb.Product{
+			Id:          product.ID.String(),
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       parseFloat(product.Price),
+			CreatedBy:   product.CreatedBy.UUID.String(),
+			ProductUrl:  product.ProductUrl,
+			Category:    product.Category,
+			Type:        product.Type,
+			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			Stock:       product.Stock,
+		})
+	}
+
+	resp := &pb.ListAllProductsByCategoryResponse{
+		Products: productResponses,
+	}
+
+	return resp, nil
+}

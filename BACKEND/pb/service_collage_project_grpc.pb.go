@@ -19,31 +19,33 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CollageProject_SignUpUser_FullMethodName            = "/pb.CollageProject/SignUpUser"
-	CollageProject_LoginUser_FullMethodName             = "/pb.CollageProject/LoginUser"
-	CollageProject_GetUserByID_FullMethodName           = "/pb.CollageProject/GetUserByID"
-	CollageProject_GetUserByEmail_FullMethodName        = "/pb.CollageProject/GetUserByEmail"
-	CollageProject_UpdateUser_FullMethodName            = "/pb.CollageProject/UpdateUser"
-	CollageProject_DeleteUser_FullMethodName            = "/pb.CollageProject/DeleteUser"
-	CollageProject_RefreshToken_FullMethodName          = "/pb.CollageProject/RefreshToken"
-	CollageProject_CreateProduct_FullMethodName         = "/pb.CollageProject/CreateProduct"
-	CollageProject_GetProductByID_FullMethodName        = "/pb.CollageProject/GetProductByID"
-	CollageProject_GetOnlyProductRequest_FullMethodName = "/pb.CollageProject/GetOnlyProductRequest"
-	CollageProject_GetProductByUserID_FullMethodName    = "/pb.CollageProject/GetProductByUserID"
-	CollageProject_ListProducts_FullMethodName          = "/pb.CollageProject/ListProducts"
-	CollageProject_UpdateProduct_FullMethodName         = "/pb.CollageProject/UpdateProduct"
-	CollageProject_DeleteProduct_FullMethodName         = "/pb.CollageProject/DeleteProduct"
-	CollageProject_ListProductsByName_FullMethodName    = "/pb.CollageProject/ListProductsByName"
-	CollageProject_CreateOrder_FullMethodName           = "/pb.CollageProject/CreateOrder"
-	CollageProject_GetOrderByID_FullMethodName          = "/pb.CollageProject/GetOrderByID"
-	CollageProject_ListOrders_FullMethodName            = "/pb.CollageProject/ListOrders"
-	CollageProject_UpdateOrderStatus_FullMethodName     = "/pb.CollageProject/UpdateOrderStatus"
-	CollageProject_DeleteOrder_FullMethodName           = "/pb.CollageProject/DeleteOrder"
-	CollageProject_AddToCart_FullMethodName             = "/pb.CollageProject/AddToCart"
-	CollageProject_GetCartByUser_FullMethodName         = "/pb.CollageProject/GetCartByUser"
-	CollageProject_UpdateCartQuantity_FullMethodName    = "/pb.CollageProject/UpdateCartQuantity"
-	CollageProject_RemoveFromCart_FullMethodName        = "/pb.CollageProject/RemoveFromCart"
-	CollageProject_ClearCart_FullMethodName             = "/pb.CollageProject/ClearCart"
+	CollageProject_SignUpUser_FullMethodName             = "/pb.CollageProject/SignUpUser"
+	CollageProject_LoginUser_FullMethodName              = "/pb.CollageProject/LoginUser"
+	CollageProject_GetUserByID_FullMethodName            = "/pb.CollageProject/GetUserByID"
+	CollageProject_GetUserByEmail_FullMethodName         = "/pb.CollageProject/GetUserByEmail"
+	CollageProject_UpdateUser_FullMethodName             = "/pb.CollageProject/UpdateUser"
+	CollageProject_DeleteUser_FullMethodName             = "/pb.CollageProject/DeleteUser"
+	CollageProject_RefreshToken_FullMethodName           = "/pb.CollageProject/RefreshToken"
+	CollageProject_CreateProduct_FullMethodName          = "/pb.CollageProject/CreateProduct"
+	CollageProject_GetProductByID_FullMethodName         = "/pb.CollageProject/GetProductByID"
+	CollageProject_GetOnlyProductRequest_FullMethodName  = "/pb.CollageProject/GetOnlyProductRequest"
+	CollageProject_GetProductByUserID_FullMethodName     = "/pb.CollageProject/GetProductByUserID"
+	CollageProject_ListProducts_FullMethodName           = "/pb.CollageProject/ListProducts"
+	CollageProject_UpdateProduct_FullMethodName          = "/pb.CollageProject/UpdateProduct"
+	CollageProject_DeleteProduct_FullMethodName          = "/pb.CollageProject/DeleteProduct"
+	CollageProject_ListProductsByName_FullMethodName     = "/pb.CollageProject/ListProductsByName"
+	CollageProject_ListProductsByCategory_FullMethodName = "/pb.CollageProject/ListProductsByCategory"
+	CollageProject_ListProductsByType_FullMethodName     = "/pb.CollageProject/ListProductsByType"
+	CollageProject_CreateOrder_FullMethodName            = "/pb.CollageProject/CreateOrder"
+	CollageProject_GetOrderByID_FullMethodName           = "/pb.CollageProject/GetOrderByID"
+	CollageProject_ListOrders_FullMethodName             = "/pb.CollageProject/ListOrders"
+	CollageProject_UpdateOrderStatus_FullMethodName      = "/pb.CollageProject/UpdateOrderStatus"
+	CollageProject_DeleteOrder_FullMethodName            = "/pb.CollageProject/DeleteOrder"
+	CollageProject_AddToCart_FullMethodName              = "/pb.CollageProject/AddToCart"
+	CollageProject_GetCartByUser_FullMethodName          = "/pb.CollageProject/GetCartByUser"
+	CollageProject_UpdateCartQuantity_FullMethodName     = "/pb.CollageProject/UpdateCartQuantity"
+	CollageProject_RemoveFromCart_FullMethodName         = "/pb.CollageProject/RemoveFromCart"
+	CollageProject_ClearCart_FullMethodName              = "/pb.CollageProject/ClearCart"
 )
 
 // CollageProjectClient is the client API for CollageProject service.
@@ -67,6 +69,8 @@ type CollageProjectClient interface {
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
 	ListProductsByName(ctx context.Context, in *ListAllProductsByNameRequest, opts ...grpc.CallOption) (*ListAllProductsByNameResponse, error)
+	ListProductsByCategory(ctx context.Context, in *ListAllProductsByCategoryRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error)
+	ListProductsByType(ctx context.Context, in *ListAllProductsByTypeRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error)
 	// ORDER
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
@@ -239,6 +243,26 @@ func (c *collageProjectClient) ListProductsByName(ctx context.Context, in *ListA
 	return out, nil
 }
 
+func (c *collageProjectClient) ListProductsByCategory(ctx context.Context, in *ListAllProductsByCategoryRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAllProductsByCategoryResponse)
+	err := c.cc.Invoke(ctx, CollageProject_ListProductsByCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *collageProjectClient) ListProductsByType(ctx context.Context, in *ListAllProductsByTypeRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAllProductsByCategoryResponse)
+	err := c.cc.Invoke(ctx, CollageProject_ListProductsByType_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *collageProjectClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OrderResponse)
@@ -360,6 +384,8 @@ type CollageProjectServer interface {
 	UpdateProduct(context.Context, *UpdateProductRequest) (*ProductResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
 	ListProductsByName(context.Context, *ListAllProductsByNameRequest) (*ListAllProductsByNameResponse, error)
+	ListProductsByCategory(context.Context, *ListAllProductsByCategoryRequest) (*ListAllProductsByCategoryResponse, error)
+	ListProductsByType(context.Context, *ListAllProductsByTypeRequest) (*ListAllProductsByCategoryResponse, error)
 	// ORDER
 	CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error)
 	GetOrderByID(context.Context, *GetOrderRequest) (*OrderResponse, error)
@@ -426,6 +452,12 @@ func (UnimplementedCollageProjectServer) DeleteProduct(context.Context, *DeleteP
 }
 func (UnimplementedCollageProjectServer) ListProductsByName(context.Context, *ListAllProductsByNameRequest) (*ListAllProductsByNameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProductsByName not implemented")
+}
+func (UnimplementedCollageProjectServer) ListProductsByCategory(context.Context, *ListAllProductsByCategoryRequest) (*ListAllProductsByCategoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProductsByCategory not implemented")
+}
+func (UnimplementedCollageProjectServer) ListProductsByType(context.Context, *ListAllProductsByTypeRequest) (*ListAllProductsByCategoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProductsByType not implemented")
 }
 func (UnimplementedCollageProjectServer) CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
@@ -748,6 +780,42 @@ func _CollageProject_ListProductsByName_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CollageProject_ListProductsByCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllProductsByCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollageProjectServer).ListProductsByCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollageProject_ListProductsByCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollageProjectServer).ListProductsByCategory(ctx, req.(*ListAllProductsByCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CollageProject_ListProductsByType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllProductsByTypeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollageProjectServer).ListProductsByType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollageProject_ListProductsByType_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollageProjectServer).ListProductsByType(ctx, req.(*ListAllProductsByTypeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CollageProject_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateOrderRequest)
 	if err := dec(in); err != nil {
@@ -994,6 +1062,14 @@ var CollageProject_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListProductsByName",
 			Handler:    _CollageProject_ListProductsByName_Handler,
+		},
+		{
+			MethodName: "ListProductsByCategory",
+			Handler:    _CollageProject_ListProductsByCategory_Handler,
+		},
+		{
+			MethodName: "ListProductsByType",
+			Handler:    _CollageProject_ListProductsByType_Handler,
 		},
 		{
 			MethodName: "CreateOrder",

@@ -110,6 +110,20 @@ service CollageProject {
            };
     }
 
+    rpc ListProductsByCategory(ListAllProductsByCategoryRequest) returns (ListAllProductsByCategoryResponse){
+      option (google.api.http) = {
+              post: "/v1/api/getProductCategory"
+              body: "*"
+           };
+    }
+
+    rpc ListProductsByType(ListAllProductsByTypeRequest) returns (ListAllProductsByCategoryResponse){
+      option (google.api.http) = {
+              post: "/v1/api/getProductType"
+              body: "*"
+           };
+    }
+
   // ORDER
     rpc CreateOrder(CreateOrderRequest) returns (OrderResponse){
       option (google.api.http) = {

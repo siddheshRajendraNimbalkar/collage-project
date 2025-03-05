@@ -207,6 +207,89 @@ func (q *Queries) GetProductByUserID(ctx context.Context, createdBy uuid.NullUUI
 	return items, nil
 }
 
+const listProductsByCategory = `-- name: ListProductsByCategory :many
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products WHERE category = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListProductsByCategory(ctx context.Context, category string) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, listProductsByCategory, category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Product{}
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.Stock,
+			&i.ProductUrl,
+			&i.Category,
+			&i.Type,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProductsByType = `-- name: ListProductsByType :many
+SELECT id, name, description, price, stock, product_url, category, type, created_by, created_at FROM products WHERE type = $1 AND category = $2
+ORDER BY created_at DESC
+`
+
+type ListProductsByTypeParams struct {
+	Type     string `db:"type" json:"type"`
+	Category string `db:"category" json:"category"`
+}
+
+func (q *Queries) ListProductsByType(ctx context.Context, arg ListProductsByTypeParams) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, listProductsByType, arg.Type, arg.Category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Product{}
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.Stock,
+			&i.ProductUrl,
+			&i.Category,
+			&i.Type,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
 SET 

@@ -10,11 +10,11 @@ message Product {
   string description = 3;
   double price = 4;
   int32 stock = 5;
-  string created_by = 6; // User ID of creator
+  string created_by = 6; 
   string created_at = 7;
-  string product_url = 8; // Added product URL
-  string category = 9; // Added category
-  string type = 10; // Added type
+  string product_url = 8; 
+  string category = 9; 
+  string type = 10; 
 }
 
 message CreateProductRequest {
@@ -75,6 +75,18 @@ message ListAllProductsByNameResponse {
   repeated Product products = 1;
 }
 
+message ListAllProductsByCategoryRequest {
+  string category = 1;
+}
+
+message ListAllProductsByTypeRequest {
+  string type = 1;
+  string category = 2;
+}
+
+message ListAllProductsByCategoryResponse {
+  repeated Product products = 1;
+}
 
 message ListAllProductsByCreateBy{
   

@@ -395,6 +395,54 @@ func local_request_CollageProject_ListProductsByName_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
+func request_CollageProject_ListProductsByCategory_0(ctx context.Context, marshaler runtime.Marshaler, client CollageProjectClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAllProductsByCategoryRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListProductsByCategory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_CollageProject_ListProductsByCategory_0(ctx context.Context, marshaler runtime.Marshaler, server CollageProjectServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAllProductsByCategoryRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListProductsByCategory(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_CollageProject_ListProductsByType_0(ctx context.Context, marshaler runtime.Marshaler, client CollageProjectClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAllProductsByTypeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListProductsByType(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_CollageProject_ListProductsByType_0(ctx context.Context, marshaler runtime.Marshaler, server CollageProjectServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListAllProductsByTypeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListProductsByType(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_CollageProject_CreateOrder_0(ctx context.Context, marshaler runtime.Marshaler, client CollageProjectClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateOrderRequest
@@ -941,6 +989,46 @@ func RegisterCollageProjectHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 		forward_CollageProject_ListProductsByName_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_CollageProject_ListProductsByCategory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.CollageProject/ListProductsByCategory", runtime.WithHTTPPathPattern("/v1/api/getProductCategory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CollageProject_ListProductsByCategory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CollageProject_ListProductsByCategory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_CollageProject_ListProductsByType_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.CollageProject/ListProductsByType", runtime.WithHTTPPathPattern("/v1/api/getProductType"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CollageProject_ListProductsByType_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CollageProject_ListProductsByType_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_CollageProject_CreateOrder_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1436,6 +1524,40 @@ func RegisterCollageProjectHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 		forward_CollageProject_ListProductsByName_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_CollageProject_ListProductsByCategory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pb.CollageProject/ListProductsByCategory", runtime.WithHTTPPathPattern("/v1/api/getProductCategory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CollageProject_ListProductsByCategory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CollageProject_ListProductsByCategory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_CollageProject_ListProductsByType_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/pb.CollageProject/ListProductsByType", runtime.WithHTTPPathPattern("/v1/api/getProductType"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CollageProject_ListProductsByType_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CollageProject_ListProductsByType_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_CollageProject_CreateOrder_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1610,57 +1732,61 @@ func RegisterCollageProjectHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_CollageProject_SignUpUser_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "sign-in"}, ""))
-	pattern_CollageProject_LoginUser_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "login"}, ""))
-	pattern_CollageProject_GetUserByID_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "userId"}, ""))
-	pattern_CollageProject_GetUserByEmail_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "UserEmail"}, ""))
-	pattern_CollageProject_UpdateUser_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "updateUser"}, ""))
-	pattern_CollageProject_DeleteUser_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteUser"}, ""))
-	pattern_CollageProject_RefreshToken_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "refreshToken"}, ""))
-	pattern_CollageProject_CreateProduct_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createProduct"}, ""))
-	pattern_CollageProject_GetProductByID_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productId"}, ""))
-	pattern_CollageProject_GetOnlyProductRequest_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productOnlyId"}, ""))
-	pattern_CollageProject_GetProductByUserID_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productByUser"}, ""))
-	pattern_CollageProject_ListProducts_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "listProduct"}, ""))
-	pattern_CollageProject_UpdateProduct_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "updateProduct"}, ""))
-	pattern_CollageProject_DeleteProduct_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteProduct"}, ""))
-	pattern_CollageProject_ListProductsByName_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "getProductName"}, ""))
-	pattern_CollageProject_CreateOrder_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createOrder"}, ""))
-	pattern_CollageProject_GetOrderByID_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "orderId"}, ""))
-	pattern_CollageProject_ListOrders_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "orderList"}, ""))
-	pattern_CollageProject_UpdateOrderStatus_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "udateOreder"}, ""))
-	pattern_CollageProject_DeleteOrder_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteOrder"}, ""))
-	pattern_CollageProject_AddToCart_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createCart"}, ""))
-	pattern_CollageProject_GetCartByUser_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "userCart"}, ""))
-	pattern_CollageProject_UpdateCartQuantity_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "cartQuantity"}, ""))
-	pattern_CollageProject_RemoveFromCart_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "removeCart"}, ""))
-	pattern_CollageProject_ClearCart_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "clearCart"}, ""))
+	pattern_CollageProject_SignUpUser_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "sign-in"}, ""))
+	pattern_CollageProject_LoginUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "login"}, ""))
+	pattern_CollageProject_GetUserByID_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "userId"}, ""))
+	pattern_CollageProject_GetUserByEmail_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "UserEmail"}, ""))
+	pattern_CollageProject_UpdateUser_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "updateUser"}, ""))
+	pattern_CollageProject_DeleteUser_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteUser"}, ""))
+	pattern_CollageProject_RefreshToken_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "refreshToken"}, ""))
+	pattern_CollageProject_CreateProduct_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createProduct"}, ""))
+	pattern_CollageProject_GetProductByID_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productId"}, ""))
+	pattern_CollageProject_GetOnlyProductRequest_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productOnlyId"}, ""))
+	pattern_CollageProject_GetProductByUserID_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "productByUser"}, ""))
+	pattern_CollageProject_ListProducts_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "listProduct"}, ""))
+	pattern_CollageProject_UpdateProduct_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "updateProduct"}, ""))
+	pattern_CollageProject_DeleteProduct_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteProduct"}, ""))
+	pattern_CollageProject_ListProductsByName_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "getProductName"}, ""))
+	pattern_CollageProject_ListProductsByCategory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "getProductCategory"}, ""))
+	pattern_CollageProject_ListProductsByType_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "getProductType"}, ""))
+	pattern_CollageProject_CreateOrder_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createOrder"}, ""))
+	pattern_CollageProject_GetOrderByID_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "orderId"}, ""))
+	pattern_CollageProject_ListOrders_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "orderList"}, ""))
+	pattern_CollageProject_UpdateOrderStatus_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "udateOreder"}, ""))
+	pattern_CollageProject_DeleteOrder_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "deleteOrder"}, ""))
+	pattern_CollageProject_AddToCart_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "createCart"}, ""))
+	pattern_CollageProject_GetCartByUser_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "userCart"}, ""))
+	pattern_CollageProject_UpdateCartQuantity_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "cartQuantity"}, ""))
+	pattern_CollageProject_RemoveFromCart_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "removeCart"}, ""))
+	pattern_CollageProject_ClearCart_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "api", "clearCart"}, ""))
 )
 
 var (
-	forward_CollageProject_SignUpUser_0            = runtime.ForwardResponseMessage
-	forward_CollageProject_LoginUser_0             = runtime.ForwardResponseMessage
-	forward_CollageProject_GetUserByID_0           = runtime.ForwardResponseMessage
-	forward_CollageProject_GetUserByEmail_0        = runtime.ForwardResponseMessage
-	forward_CollageProject_UpdateUser_0            = runtime.ForwardResponseMessage
-	forward_CollageProject_DeleteUser_0            = runtime.ForwardResponseMessage
-	forward_CollageProject_RefreshToken_0          = runtime.ForwardResponseMessage
-	forward_CollageProject_CreateProduct_0         = runtime.ForwardResponseMessage
-	forward_CollageProject_GetProductByID_0        = runtime.ForwardResponseMessage
-	forward_CollageProject_GetOnlyProductRequest_0 = runtime.ForwardResponseMessage
-	forward_CollageProject_GetProductByUserID_0    = runtime.ForwardResponseMessage
-	forward_CollageProject_ListProducts_0          = runtime.ForwardResponseMessage
-	forward_CollageProject_UpdateProduct_0         = runtime.ForwardResponseMessage
-	forward_CollageProject_DeleteProduct_0         = runtime.ForwardResponseMessage
-	forward_CollageProject_ListProductsByName_0    = runtime.ForwardResponseMessage
-	forward_CollageProject_CreateOrder_0           = runtime.ForwardResponseMessage
-	forward_CollageProject_GetOrderByID_0          = runtime.ForwardResponseMessage
-	forward_CollageProject_ListOrders_0            = runtime.ForwardResponseMessage
-	forward_CollageProject_UpdateOrderStatus_0     = runtime.ForwardResponseMessage
-	forward_CollageProject_DeleteOrder_0           = runtime.ForwardResponseMessage
-	forward_CollageProject_AddToCart_0             = runtime.ForwardResponseMessage
-	forward_CollageProject_GetCartByUser_0         = runtime.ForwardResponseMessage
-	forward_CollageProject_UpdateCartQuantity_0    = runtime.ForwardResponseMessage
-	forward_CollageProject_RemoveFromCart_0        = runtime.ForwardResponseMessage
-	forward_CollageProject_ClearCart_0             = runtime.ForwardResponseMessage
+	forward_CollageProject_SignUpUser_0             = runtime.ForwardResponseMessage
+	forward_CollageProject_LoginUser_0              = runtime.ForwardResponseMessage
+	forward_CollageProject_GetUserByID_0            = runtime.ForwardResponseMessage
+	forward_CollageProject_GetUserByEmail_0         = runtime.ForwardResponseMessage
+	forward_CollageProject_UpdateUser_0             = runtime.ForwardResponseMessage
+	forward_CollageProject_DeleteUser_0             = runtime.ForwardResponseMessage
+	forward_CollageProject_RefreshToken_0           = runtime.ForwardResponseMessage
+	forward_CollageProject_CreateProduct_0          = runtime.ForwardResponseMessage
+	forward_CollageProject_GetProductByID_0         = runtime.ForwardResponseMessage
+	forward_CollageProject_GetOnlyProductRequest_0  = runtime.ForwardResponseMessage
+	forward_CollageProject_GetProductByUserID_0     = runtime.ForwardResponseMessage
+	forward_CollageProject_ListProducts_0           = runtime.ForwardResponseMessage
+	forward_CollageProject_UpdateProduct_0          = runtime.ForwardResponseMessage
+	forward_CollageProject_DeleteProduct_0          = runtime.ForwardResponseMessage
+	forward_CollageProject_ListProductsByName_0     = runtime.ForwardResponseMessage
+	forward_CollageProject_ListProductsByCategory_0 = runtime.ForwardResponseMessage
+	forward_CollageProject_ListProductsByType_0     = runtime.ForwardResponseMessage
+	forward_CollageProject_CreateOrder_0            = runtime.ForwardResponseMessage
+	forward_CollageProject_GetOrderByID_0           = runtime.ForwardResponseMessage
+	forward_CollageProject_ListOrders_0             = runtime.ForwardResponseMessage
+	forward_CollageProject_UpdateOrderStatus_0      = runtime.ForwardResponseMessage
+	forward_CollageProject_DeleteOrder_0            = runtime.ForwardResponseMessage
+	forward_CollageProject_AddToCart_0              = runtime.ForwardResponseMessage
+	forward_CollageProject_GetCartByUser_0          = runtime.ForwardResponseMessage
+	forward_CollageProject_UpdateCartQuantity_0     = runtime.ForwardResponseMessage
+	forward_CollageProject_RemoveFromCart_0         = runtime.ForwardResponseMessage
+	forward_CollageProject_ClearCart_0              = runtime.ForwardResponseMessage
 )

@@ -37,3 +37,11 @@ WHERE id = $1;
 
 -- name: DeleteProduct :exec
 DELETE FROM products WHERE id = $1;
+
+-- name: ListProductsByCategory :many
+SELECT * FROM products WHERE category = $1
+ORDER BY created_at DESC;
+
+-- name: ListProductsByType :many
+SELECT * FROM products WHERE type = $1 AND category = $2
+ORDER BY created_at DESC;
