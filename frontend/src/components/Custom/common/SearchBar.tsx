@@ -19,7 +19,7 @@ const SearchBar = () => {
         try {
           const res = await fetch(`/api/search?q=${query}`);
           const data = await res.json();
-          console.log("Suggestions:", data.results);
+     
           setSuggestions(data.results || []);
         } catch (error) {
           console.error("Error fetching suggestions:", error);
@@ -44,7 +44,7 @@ const SearchBar = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      console.log("Search:", query);
+ 
     }
   };
 

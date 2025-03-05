@@ -88,7 +88,7 @@ const Page = () => {
         form.setValue("product_url", productData.product_url)
         form.setValue("category", productData.category)
         form.setValue("type", productData.type)
-        console.log(form.watch("type"));
+      
 
         setSelectedCategory(productData.category);
 

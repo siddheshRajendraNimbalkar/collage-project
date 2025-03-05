@@ -76,7 +76,7 @@ const Page = () => {
             } else {
                 setCartMessage(response.data.message)
             }
-            console.log(response.data)
+          
         } catch (error) {
             console.error('Error fetching product:', error);
         }
@@ -112,7 +112,7 @@ const Page = () => {
                 setOrderOpen(false)
                 setokCreateOrder(!okCreateOrder)
             }
-            console.log(response.data)
+       
         } catch (error) {
             console.error('Error fetching product:', error);
         }
@@ -145,7 +145,7 @@ const Page = () => {
                     { headers: { 'Content-Type': 'application/json' } }
                 );
 
-                console.log(response.data.product)
+           
                 setProduct(response.data.product);
             } catch (error) {
                 console.error('Error fetching product:', error);

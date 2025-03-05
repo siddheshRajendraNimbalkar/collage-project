@@ -48,7 +48,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
 
       {isOpen && (
         <div
-          className="absolute left-0 top-full w-48 py-2 
+          className="absolute left-0 top-full w-48 py-2 z-50
                      border-[1px] border-black rounded-xl 
                      shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]
                      animate-in fade-in slide-in-from-top-1 duration-200"

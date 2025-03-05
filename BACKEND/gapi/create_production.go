@@ -75,8 +75,8 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		CreatedBy:   uuid.NullUUID{UUID: token.ID, Valid: true},
 		Stock:       req.GetStock(),
 		ProductUrl:  req.GetProductUrl(),
-		Category:    req.GetCategory(),
-		Type:        req.GetType(),
+		Category:    strings.ToLower(req.GetCategory()),
+		Type:        strings.ToLower(req.GetType()),
 	}
 
 	product, err := server.store.CreateProduct(ctx, productParams)
@@ -192,8 +192,8 @@ func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 		Price:       fmt.Sprintf("%.2f", req.GetPrice()),
 		Stock:       req.GetStock(),
 		ProductUrl:  req.GetProductUrl(),
-		Category:    req.GetCategory(),
-		Type:        req.GetType(),
+		Category:    strings.ToLower(req.GetCategory()),
+		Type:        strings.ToLower(req.GetType()),
 	}
 
 	updatedProduct, err := server.store.UpdateProduct(ctx, updateParams)
@@ -364,11 +364,8 @@ func (server *Server) GetOnlyProductRequest(ctx context.Context, req *pb.GetProd
 }
 
 func (server *Server) ListProductsByCategory(ctx context.Context, req *pb.ListAllProductsByCategoryRequest) (*pb.ListAllProductsByCategoryResponse, error) {
-	if len(strings.TrimSpace(req.GetCategory())) >= 2 {
-		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
-	}
 
-	products, err := server.store.ListProductsByCategory(ctx, req.GetCategory())
+	products, err := server.store.ListProductsByCategory(ctx, strings.ToLower(req.GetCategory()))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list products: %v", err)
 	}
@@ -398,17 +395,10 @@ func (server *Server) ListProductsByCategory(ctx context.Context, req *pb.ListAl
 }
 
 func (server *Server) ListProductsByType(ctx context.Context, req *pb.ListAllProductsByTypeRequest) (*pb.ListAllProductsByCategoryResponse, error) {
-	if len(strings.TrimSpace(req.GetCategory())) >= 2 {
-		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
-	}
-
-	if len(strings.TrimSpace(req.GetType())) >= 2 {
-		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
-	}
 
 	data := db.ListProductsByTypeParams{
-		Category: req.GetCategory(),
-		Type:     req.GetType(),
+		Category: strings.ToLower(req.GetCategory()),
+		Type:     strings.ToLower(req.GetType()),
 	}
 
 	products, err := server.store.ListProductsByType(ctx, data)

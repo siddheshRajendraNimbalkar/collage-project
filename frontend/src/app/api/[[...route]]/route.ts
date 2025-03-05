@@ -29,10 +29,10 @@ app.get("/search", async (c) => {
 
     // Search in the sorted set
     const rank = await redis.zrank("autocomplete", query);
-    console.log("Rank:", rank);
+
     if (rank !== null && rank !== undefined) {
       const suggestions = await redis.zrange("autocomplete", rank, rank + 50);
-      console.log("Suggestions:", suggestions);
+
       const seenProducts = new Set<string>();
 
       for (const item of suggestions) {

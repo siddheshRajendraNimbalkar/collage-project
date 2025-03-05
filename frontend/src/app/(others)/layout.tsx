@@ -17,7 +17,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const route = useRouter()
 
   const handleNavigation = (path: string) => {
-    console.log(path)
     route.push(path)
   };
 
