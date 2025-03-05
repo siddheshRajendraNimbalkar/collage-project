@@ -19,6 +19,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+var ctx = context.Background()
+
 func main() {
 	config, err := util.LoadConfig(".")
 	if err != nil {
@@ -35,6 +37,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+
 	go grpcClient(*store, config)
 	grpcApiClient(*store, config)
 }

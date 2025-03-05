@@ -40,7 +40,7 @@ export default function Home() {
               category: "Audio",
               description: "High-fidelity sound with active noise cancellation...",
               price: "$299.99",
-              image: "https://imgs.search.brave.com/4NuAAlsheUY8lUmNA0eYgi4it1g4ZyZ40lAVdXmwk0k/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/cGl4YWJheS5jb20v/cGhvdG8vMjAyMy8x/MC8yNy8xMC8yOC93/b21hbi04MzQ0OTQ0/XzY0MC5qcGc"
+              image: "https://imgs.search.brave.com/WmTpI8bmFQnjBandh10_YJ8zb4ntKjfARANlDEhRHRo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9mbHV0/dGVyLmdpdGh1Yi5p/by9hc3NldHMtZm9y/LWFwaS1kb2NzL2Fz/c2V0cy93aWRnZXRz/L293bC5qcGc"
             },
             {
               name: "Premium Headphones",

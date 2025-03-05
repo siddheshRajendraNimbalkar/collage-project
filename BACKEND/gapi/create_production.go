@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
@@ -21,6 +22,39 @@ func parseFloat(price string) float64 {
 		return 0
 	}
 	return parsedPrice
+}
+
+func saveProductInRedis(ctx context.Context, client *redis.Client, productID, fullValue string) error {
+	pipe := client.Pipeline()
+
+	for i := range fullValue {
+		prefix := fullValue[:i+1]
+
+		// Use a slice with one element explicitly
+		pipe.ZAdd(ctx, "autocomplete", redis.Z{
+			Score:  float64(i),
+			Member: prefix,
+		})
+
+		pipe.ZAdd(ctx, "autocomplete:"+prefix, redis.Z{
+			Score:  float64(i),
+			Member: productID,
+		})
+	}
+
+	// Add the full product name as an exact match
+	pipe.ZAdd(ctx, "autocomplete", redis.Z{
+		Score:  float64(len(fullValue)),
+		Member: fullValue + "*",
+	})
+
+	pipe.ZAdd(ctx, "autocomplete:"+fullValue+"*", redis.Z{
+		Score:  float64(len(fullValue)),
+		Member: productID,
+	})
+
+	_, err := pipe.Exec(ctx)
+	return err
 }
 
 func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.ProductResponse, error) {
@@ -49,6 +83,9 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create product: %v", err)
 	}
+
+	redisValue := fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type)
+	saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue))
 
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
