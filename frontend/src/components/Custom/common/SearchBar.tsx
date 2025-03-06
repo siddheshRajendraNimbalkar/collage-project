@@ -18,6 +18,7 @@ const SearchBar = () => {
         setLoading(true);
         try {
           const res = await fetch(`/api/search?q=${query}`);
+          console.log(res)
           const data = await res.json();
      
           setSuggestions(data.results || []);
@@ -44,7 +45,6 @@ const SearchBar = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
- 
     }
   };
 
@@ -61,12 +61,12 @@ const SearchBar = () => {
                    focus:outline-none focus:ring-2 focus:ring-[#FF90E8]
                    transition-all duration-300 border-2 border-black
                    placeholder-gray-500 text-xl hover:border-[#FF90E8]
-                   focus:border-transparent rounded-xl"
+                   focus:border-transparent rounded"
         />
       </form>
 
       {/* Search Suggestions */}
-      <ul className="absolute w-full bg-black text-white rounded-xl mt-2 border border-gray-700 shadow-lg max-h-60 overflow-y-auto z-50">
+      <ul className="absolute w-[93vw] bg-black text-white rounded-xl mt-2 border border-gray-700 shadow-lg max-h-60 overflow-y-auto z-50">
         {loading ? (
           <li className="px-4 py-2 text-gray-400">Loading...</li>
         ) : (
@@ -81,8 +81,6 @@ const SearchBar = () => {
           ))
         )}
       </ul>
-
-
 
       <div className="mt-4 flex flex-wrap gap-4">
         <OnlyBtn onClick={() => router.push('/')} className="bg-white text-black">

@@ -57,7 +57,7 @@ const Page = () => {
         {data?.products?.map((product) => (
           <div 
             key={product.id} 
-            className="relative cursor-pointer group flex border-4 border-pink-800 rounded-xl bg-black p-4 transition-all duration-300 z-20
+            className="relative cursor-pointer group flex border-4  rounded-xl bg-black p-4 transition-all duration-300 z-20
             hover:-translate-x-2 hover:-translate-y-2 hover:shadow-[10px_10px_0px_rgba(255,255,255,1),_12px_12px_0px_rgba(255,255,255,0.1)]"
             onClick={() => {
               router.push(`/product/${product.category}/${product.id}`)
@@ -67,7 +67,7 @@ const Page = () => {
               <img 
                 src={product.product_url} 
                 alt={product.name} 
-                className="w-full h-48 object-cover rounded-lg border-2 border-pink-500"
+                className="w-full h-48 object-cover rounded-lg border-2"
               />
             </div>
             

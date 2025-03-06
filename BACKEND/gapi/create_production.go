@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -29,43 +30,51 @@ func saveProductInRedis(ctx context.Context, client *redis.Client, productID, fu
 
 	for i := range fullValue {
 		prefix := fullValue[:i+1]
-
-		// Use a slice with one element explicitly
-		pipe.ZAdd(ctx, "autocomplete", redis.Z{
-			Score:  float64(i),
+		if err := pipe.ZAdd(ctx, "autocomplete", redis.Z{
+			Score:  0,
 			Member: prefix,
-		})
+		}).Err(); err != nil {
+			return fmt.Errorf("error adding prefix to Redis: %w", err)
+		}
 
-		pipe.ZAdd(ctx, "autocomplete:"+prefix, redis.Z{
-			Score:  float64(i),
+		if err := pipe.ZAdd(ctx, "autocomplete:"+prefix, redis.Z{
+			Score:  0,
 			Member: productID,
-		})
+		}).Err(); err != nil {
+			return fmt.Errorf("error adding productID to Redis: %w", err)
+		}
 	}
 
-	// Add the full product name as an exact match
-	pipe.ZAdd(ctx, "autocomplete", redis.Z{
-		Score:  float64(len(fullValue)),
+	if err := pipe.ZAdd(ctx, "autocomplete", redis.Z{
+		Score:  0,
 		Member: fullValue + "*",
-	})
+	}).Err(); err != nil {
+		return fmt.Errorf("error adding exact match to Redis: %w", err)
+	}
 
-	pipe.ZAdd(ctx, "autocomplete:"+fullValue+"*", redis.Z{
-		Score:  float64(len(fullValue)),
+	if err := pipe.ZAdd(ctx, "autocomplete:"+fullValue+"*", redis.Z{
+		Score:  0,
 		Member: productID,
-	})
+	}).Err(); err != nil {
+		return fmt.Errorf("error adding full match to Redis: %w", err)
+	}
 
 	_, err := pipe.Exec(ctx)
-	return err
+	if err != nil {
+		return fmt.Errorf("redis pipeline execution failed: %w", err)
+	}
+
+	return nil
 }
 
 func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.ProductResponse, error) {
-
 	if err := util.ValidateCreateProductInput(req); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product details: %v", err)
 	}
 
 	token, err := server.AuthInterceptor(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "error in auth token: %v", err)
 	}
 
 	productParams := db.CreateProductParams{
@@ -84,8 +93,17 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		return nil, status.Errorf(codes.Internal, "failed to create product: %v", err)
 	}
 
-	redisValue := fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type)
-	saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue))
+	keyVariations := []string{
+		fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type),
+		fmt.Sprintf("%s %s %s", product.Category, product.Type, product.Name),
+		fmt.Sprintf("%s %s %s", product.Type, product.Category, product.Name),
+	}
+
+	for _, redisValue := range keyVariations {
+		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue)); err != nil {
+			log.Printf("Failed to save product in Redis: %v", err)
+		}
+	}
 
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
