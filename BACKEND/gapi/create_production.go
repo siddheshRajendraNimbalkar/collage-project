@@ -169,11 +169,11 @@ func (server *Server) GetProductByID(ctx context.Context, req *pb.GetProductRequ
 }
 
 func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-
 	token, err := server.AuthInterceptor(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Error in Auth Token: %v", err)
 	}
+
 	productID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid product ID format")
@@ -192,15 +192,7 @@ func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 	}
 
 	if product.CreatedBy.UUID != token.ID {
-		return nil, status.Errorf(codes.InvalidArgument, "Only Product Creater can change product data")
-	}
-
-	existingProduct, err := server.store.GetProductByID(ctx, productID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "product not found")
-		}
-		return nil, status.Errorf(codes.Internal, "failed to fetch product: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "Only Product Creator can change product data")
 	}
 
 	updateParams := db.UpdateProductParams{
@@ -219,18 +211,53 @@ func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 		return nil, status.Errorf(codes.Internal, "failed to update product: %v", err)
 	}
 
+	// Redis Key Variations for Old Product
+	oldKeyVariations := []string{
+		fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type),
+		fmt.Sprintf("%s %s %s", product.Category, product.Type, product.Name),
+		fmt.Sprintf("%s %s %s", product.Type, product.Category, product.Name),
+	}
+
+	// Redis Key Variations for Updated Product
+	newKeyVariations := []string{
+		fmt.Sprintf("%s %s %s", updatedProduct.Name, updatedProduct.Category, updatedProduct.Type),
+		fmt.Sprintf("%s %s %s", updatedProduct.Category, updatedProduct.Type, updatedProduct.Name),
+		fmt.Sprintf("%s %s %s", updatedProduct.Type, updatedProduct.Category, updatedProduct.Name),
+	}
+
+	// Use Redis Transaction to ensure consistency
+	pipe := server.redis.TxPipeline()
+
+	// Remove old autocomplete data
+	for _, redisValue := range oldKeyVariations {
+		pipe.ZRem(ctx, "autocomplete", strings.ToUpper(redisValue))
+		pipe.ZRem(ctx, "autocomplete:"+strings.ToUpper(redisValue), productID.String())
+	}
+
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		log.Printf("Failed to remove old product data from Redis: %v", err)
+	}
+
+	// Save updated product in Redis
+	for _, redisValue := range newKeyVariations {
+		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue)); err != nil {
+			log.Printf("Failed to save product in Redis: %v", err)
+		}
+	}
+
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
 			Id:          updatedProduct.ID.String(),
 			Name:        updatedProduct.Name,
 			Description: updatedProduct.Description,
 			Price:       parseFloat(updatedProduct.Price),
-			CreatedBy:   existingProduct.CreatedBy.UUID.String(),
-			CreatedAt:   existingProduct.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			CreatedBy:   product.CreatedBy.UUID.String(),
+			CreatedAt:   product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
 			ProductUrl:  updatedProduct.ProductUrl,
 			Category:    updatedProduct.Category,
 			Type:        updatedProduct.Type,
-			Stock:       product.Stock,
+			Stock:       updatedProduct.Stock,
 		},
 	}
 
