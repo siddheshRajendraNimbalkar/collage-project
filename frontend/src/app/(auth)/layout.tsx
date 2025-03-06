@@ -1,5 +1,7 @@
 'use client'
 
+import AuthBG from "@/components/Custom/backgrounds/AuthBG";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -8,15 +10,13 @@ export default function RootLayout({
   return (
         <div 
           className="min-h-screen w-full bg-cover bg-center bg-fixed"
-          style={{ 
-            backgroundImage: `url(/painting.jpg)`,
-            backgroundBlendMode: "multiply",
-            backgroundColor: "rgba(0, 0, 0, 0.3)"
-          }}
         >
+          <AuthBG>
+
           <div className="container mx-auto p-4">
             {children}
           </div>
+          </AuthBG>
         </div>
   );
 }
