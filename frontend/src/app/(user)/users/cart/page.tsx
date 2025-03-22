@@ -151,7 +151,7 @@ const CardPage: React.FC = () => {
             Your cart is empty
           </h2>
           <button
-            onClick={() => router.push('/products')}
+            onClick={() => router.push('/')}
             className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
           >
             Continue Shopping
