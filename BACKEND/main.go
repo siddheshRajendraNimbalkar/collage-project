@@ -38,7 +38,7 @@ func main() {
 
 	store := db.NewStore(conn)
 
-	go grpcClient(*store, config)
+	// Start only the HTTP API server
 	grpcApiClient(*store, config)
 }
 
@@ -47,6 +47,10 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 	if err != nil {
 		log.Fatalf("[Can't get server]: %v", err)
 	}
+	if server == nil {
+		log.Fatalf("Server is nil but no error returned")
+	}
+	log.Println("Server created successfully")
 
 	grpcMux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
@@ -60,14 +64,17 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	log.Println("About to register handler server")
+	log.Printf("grpcMux: %v, server: %v", grpcMux, server)
 	err = pb.RegisterCollageProjectHandlerServer(ctx, grpcMux, server)
 	if err != nil {
 		log.Fatal("cann't connect to listener ", err)
 	}
+	log.Println("Handler server registered successfully")
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3003"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	})
@@ -75,11 +82,13 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
 
+	log.Printf("About to listen on: %s", config.APIADDR)
 	listener, err := net.Listen("tcp", config.APIADDR)
 
 	if err != nil {
-		log.Fatalln("err while listeneing server at ", listener.Addr().String(), ": ", err.Error())
+		log.Fatalf("err while listening server: %v", err)
 	}
+	log.Printf("Listener created: %v", listener.Addr())
 
 	log.Println("http server is listening at ", listener.Addr().String())
 
@@ -94,6 +103,10 @@ func grpcClient(store db.SQLStore, config util.Config) {
 	if err != nil {
 		log.Fatalf("[Can't get server]: %v", err)
 	}
+	if server == nil {
+		log.Fatalf("gRPC Server is nil but no error returned")
+	}
+	log.Println("gRPC Server created successfully")
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterCollageProjectServer(grpcServer, server)

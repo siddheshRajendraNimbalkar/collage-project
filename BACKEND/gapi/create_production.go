@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -25,38 +26,55 @@ func parseFloat(price string) float64 {
 	return parsedPrice
 }
 
-func saveProductInRedis(ctx context.Context, client *redis.Client, productID, fullValue string) error {
+func saveProductInRedis(ctx context.Context, client *redis.Client, productID string, name, category, productType string) error {
 	pipe := client.Pipeline()
 
-	for i := range fullValue {
-		prefix := fullValue[:i+1]
-		if err := pipe.ZAdd(ctx, "autocomplete", redis.Z{
-			Score:  0,
-			Member: prefix,
-		}).Err(); err != nil {
-			return fmt.Errorf("error adding prefix to Redis: %w", err)
-		}
+	// Clean inputs
+	name = strings.TrimSpace(strings.ToLower(name))
+	category = strings.TrimSpace(strings.ToLower(category))
+	productType = strings.TrimSpace(strings.ToLower(productType))
 
-		if err := pipe.ZAdd(ctx, "autocomplete:"+prefix, redis.Z{
-			Score:  0,
-			Member: productID,
-		}).Err(); err != nil {
-			return fmt.Errorf("error adding productID to Redis: %w", err)
-		}
+	// Add the complete sentence with *
+	fullSentence := fmt.Sprintf("%s %s %s*", name, category, productType)
+	pipe.ZAdd(ctx, "autocomplete", redis.Z{Score: 0, Member: fullSentence})
+	pipe.SAdd(ctx, "search:"+fullSentence, productID)
+
+	// Generate all combinations as specified
+	combinations := []string{
+		// Name prefixes
+		name[:1], name[:2], name,
+		// Name + category prefixes
+		name + " " + category[:1], name + " " + category,
+		// Name + category + type
+		name + " " + category + " " + productType,
+		// Category prefixes
+		category[:1], category,
+		// Category + type prefixes
+		category + " " + productType[:1], category + " " + productType,
+		// Category + type + name prefixes
+		category + " " + productType + " " + name[:1],
+		category + " " + productType + " " + name[:2],
+		category + " " + productType + " " + name,
+		// Type prefixes
+		productType[:1], productType,
+		// Type + name prefixes
+		productType + " " + name[:1], productType + " " + name[:2], productType + " " + name,
+		// Type + name + category prefixes
+		productType + " " + name + " " + category[:1], productType + " " + name + " " + category,
+		// Type + category prefixes
+		productType + " " + category[:1], productType + " " + category,
+		// Type + category + name prefixes
+		productType + " " + category + " " + name[:1],
+		productType + " " + category + " " + name[:2],
+		productType + " " + category + " " + name,
 	}
 
-	if err := pipe.ZAdd(ctx, "autocomplete", redis.Z{
-		Score:  0,
-		Member: fullValue + "*",
-	}).Err(); err != nil {
-		return fmt.Errorf("error adding exact match to Redis: %w", err)
-	}
-
-	if err := pipe.ZAdd(ctx, "autocomplete:"+fullValue+"*", redis.Z{
-		Score:  0,
-		Member: productID,
-	}).Err(); err != nil {
-		return fmt.Errorf("error adding full match to Redis: %w", err)
+	// Add all valid combinations
+	for _, combo := range combinations {
+		if len(combo) > 0 && !strings.Contains(combo, "[:]") {
+			pipe.ZAdd(ctx, "autocomplete", redis.Z{Score: 0, Member: combo})
+			pipe.SAdd(ctx, "search:"+combo, productID)
+		}
 	}
 
 	_, err := pipe.Exec(ctx)
@@ -66,6 +84,8 @@ func saveProductInRedis(ctx context.Context, client *redis.Client, productID, fu
 
 	return nil
 }
+
+
 
 func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.ProductResponse, error) {
 	if err := util.ValidateCreateProductInput(req); err != nil {
@@ -93,17 +113,31 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		return nil, status.Errorf(codes.Internal, "failed to create product: %v", err)
 	}
 
-	keyVariations := []string{
-		fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type),
-		fmt.Sprintf("%s %s %s", product.Category, product.Type, product.Name),
-		fmt.Sprintf("%s %s %s", product.Type, product.Category, product.Name),
-	}
+	// Save to Redis for advanced autocomplete
+	if server.redis != nil {
+		// Cache the product data
+		productData := map[string]interface{}{
+			"id":          product.ID.String(),
+			"name":        product.Name,
+			"description": product.Description,
+			"price":       product.Price,
+			"stock":       product.Stock,
+			"created_by":  product.CreatedBy.UUID.String(),
+			"created_at":  product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			"product_url": product.ProductUrl,
+			"category":    product.Category,
+			"type":        product.Type,
+		}
+		server.redis.HMSet(ctx, "product:"+product.ID.String(), productData)
+		server.redis.Expire(ctx, "product:"+product.ID.String(), time.Hour*24)
 
-	for _, redisValue := range keyVariations {
-		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue)); err != nil {
+		// Save product with the specified autocomplete format
+		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), product.Name, product.Category, product.Type); err != nil {
 			log.Printf("Failed to save product in Redis: %v", err)
 		}
 	}
+
+
 
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
@@ -211,40 +245,7 @@ func (server *Server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 		return nil, status.Errorf(codes.Internal, "failed to update product: %v", err)
 	}
 
-	// Redis Key Variations for Old Product
-	oldKeyVariations := []string{
-		fmt.Sprintf("%s %s %s", product.Name, product.Category, product.Type),
-		fmt.Sprintf("%s %s %s", product.Category, product.Type, product.Name),
-		fmt.Sprintf("%s %s %s", product.Type, product.Category, product.Name),
-	}
 
-	// Redis Key Variations for Updated Product
-	newKeyVariations := []string{
-		fmt.Sprintf("%s %s %s", updatedProduct.Name, updatedProduct.Category, updatedProduct.Type),
-		fmt.Sprintf("%s %s %s", updatedProduct.Category, updatedProduct.Type, updatedProduct.Name),
-		fmt.Sprintf("%s %s %s", updatedProduct.Type, updatedProduct.Category, updatedProduct.Name),
-	}
-
-	// Use Redis Transaction to ensure consistency
-	pipe := server.redis.TxPipeline()
-
-	// Remove old autocomplete data
-	for _, redisValue := range oldKeyVariations {
-		pipe.ZRem(ctx, "autocomplete", strings.ToUpper(redisValue))
-		pipe.ZRem(ctx, "autocomplete:"+strings.ToUpper(redisValue), productID.String())
-	}
-
-	_, err = pipe.Exec(ctx)
-	if err != nil {
-		log.Printf("Failed to remove old product data from Redis: %v", err)
-	}
-
-	// Save updated product in Redis
-	for _, redisValue := range newKeyVariations {
-		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), strings.ToUpper(redisValue)); err != nil {
-			log.Printf("Failed to save product in Redis: %v", err)
-		}
-	}
 
 	resp := &pb.ProductResponse{
 		Product: &pb.Product{
@@ -307,8 +308,8 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 }
 
 func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllProductsByNameRequest) (*pb.ListAllProductsByNameResponse, error) {
-	if len(strings.TrimSpace(req.GetName())) >= 2 {
-		return nil, status.Errorf(codes.InvalidArgument, "product name at list contain 3 char")
+	if len(strings.TrimSpace(req.GetName())) < 2 {
+		return nil, status.Errorf(codes.InvalidArgument, "product name must contain at least 2 characters")
 	}
 	products, err := server.store.GetProductByName(ctx, req.GetName())
 	if err != nil {

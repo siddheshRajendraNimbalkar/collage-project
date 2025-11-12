@@ -10,6 +10,7 @@ type Config struct {
 	REFRESHTOKENEXPIRESIN string `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
 	ACCESSTOKENEXPIRESIN  string `mapstructure:"ACCESS_TOKEN_EXPIRES_IN"`
 	APIADDR               string `mapstructure:"APIADDR"`
+	RedisURL              string `mapstructure:"REDIS_URL"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

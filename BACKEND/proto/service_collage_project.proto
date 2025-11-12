@@ -124,6 +124,13 @@ service CollageProject {
            };
     }
 
+    rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse){
+      option (google.api.http) = {
+              post: "/v1/search"
+              body: "*"
+           };
+    }
+
   // ORDER
     rpc CreateOrder(CreateOrderRequest) returns (OrderResponse){
       option (google.api.http) = {

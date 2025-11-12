@@ -7,7 +7,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/lib/pq v1.10.9
 	github.com/o1egl/paseto v1.0.0
-	github.com/redis/go-redis/v9 v9.7.1
 	github.com/rs/cors v1.11.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/crypto v0.31.0
@@ -29,6 +28,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/redis/go-redis/v9 v9.16.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect

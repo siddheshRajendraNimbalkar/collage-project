@@ -91,3 +91,11 @@ message ListAllProductsByCategoryResponse {
 message ListAllProductsByCreateBy{
   
 }
+
+message SearchProductsRequest {
+  string query = 1;
+}
+
+message SearchProductsResponse {
+  repeated Product products = 1;
+}
