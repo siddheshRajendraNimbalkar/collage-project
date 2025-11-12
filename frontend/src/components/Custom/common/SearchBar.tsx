@@ -17,13 +17,38 @@ const SearchBar = () => {
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    if (query.length > 0) {
+    if (query.length >= 1) {
       const fetchSuggestions = async () => {
         setLoading(true);
         try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+          // Use existing product search endpoint
+          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
+          const res = await fetch(`${backendUrl}/v1/api/getProductName`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: query }),
+          });
+          if (!res.ok) {
+            console.error('Search failed:', res.status, res.statusText);
+            return;
+          }
           const data = await res.json();
-          setSuggestions(data.results || []);
+          console.log('Autocomplete data:', data);
+          console.log('Response status:', res.status);
+          const products = data.products || [];
+          console.log('Products found:', products.length);
+          if (products.length > 0) {
+            console.log('First product:', products[0]);
+          }
+          setSuggestions(products.slice(0, 8).map((product: any) => ({
+            id: product.id,
+            name: product.name,
+            image: product.product_url || '/placeholder.jpg',
+            category: product.category,
+            type: product.type
+          })));
           setShowSuggestions(true);
           setSelectedIndex(-1);
         } catch (error) {
@@ -137,10 +162,12 @@ const SearchBar = () => {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-black"></div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white truncate">{item.name}</div>
+                    <div className="font-medium text-white truncate">
+                      {item.name.replace('*', '')}
+                    </div>
                     <div className="text-sm text-gray-400 flex items-center gap-2">
                       <FiTrendingUp className="w-3 h-3" />
-                      <span>{item.name.includes('*') ? 'Complete match' : 'Partial match'}</span>
+                      <span>{item.name.includes('*') ? 'Complete match' : 'Suggestion'}</span>
                     </div>
                   </div>
                   <div className="text-xs text-gray-500">

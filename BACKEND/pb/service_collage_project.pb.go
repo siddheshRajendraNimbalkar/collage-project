@@ -27,7 +27,7 @@ const file_service_collage_project_proto_rawDesc = "" +
 	"\n" +
 	"\x1dservice_collage_project.proto\x12\x02pb\x1a\n" +
 	"user.proto\x1a\rproduct.proto\x1a\vorder.proto\x1a\n" +
-	"cart.proto\x1a\x1cgoogle/api/annotations.proto2\xc6\x15\n" +
+	"cart.proto\x1a\x1cgoogle/api/annotations.proto2\xa9\x16\n" +
 	"\x0eCollageProject\x12M\n" +
 	"\n" +
 	"SignUpUser\x12\x11.pb.SignUpRequest\x1a\x10.pb.AuthResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/api/sign-in\x12I\n" +
@@ -50,7 +50,8 @@ const file_service_collage_project_proto_rawDesc = "" +
 	"\x16ListProductsByCategory\x12$.pb.ListAllProductsByCategoryRequest\x1a%.pb.ListAllProductsByCategoryResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/api/getProductCategory\x12\x80\x01\n" +
 	"\x12ListProductsByType\x12 .pb.ListAllProductsByTypeRequest\x1a%.pb.ListAllProductsByCategoryResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/api/getProductType\x12^\n" +
 	"\x0eSearchProducts\x12\x19.pb.SearchProductsRequest\x1a\x1a.pb.SearchProductsResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
-	"/v1/search\x12X\n" +
+	"/v1/search\x12a\n" +
+	"\x12AutocompleteSearch\x12\x17.pb.AutocompleteRequest\x1a\x18.pb.AutocompleteResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/autocomplete\x12X\n" +
 	"\vCreateOrder\x12\x16.pb.CreateOrderRequest\x1a\x11.pb.OrderResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/api/createOrder\x12R\n" +
 	"\fGetOrderByID\x12\x13.pb.GetOrderRequest\x1a\x11.pb.OrderResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/api/orderId\x12_\n" +
 	"\n" +
@@ -81,31 +82,33 @@ var file_service_collage_project_proto_goTypes = []any{
 	(*ListAllProductsByCategoryRequest)(nil),  // 14: pb.ListAllProductsByCategoryRequest
 	(*ListAllProductsByTypeRequest)(nil),      // 15: pb.ListAllProductsByTypeRequest
 	(*SearchProductsRequest)(nil),             // 16: pb.SearchProductsRequest
-	(*CreateOrderRequest)(nil),                // 17: pb.CreateOrderRequest
-	(*GetOrderRequest)(nil),                   // 18: pb.GetOrderRequest
-	(*ListOrdersByUserRequest)(nil),           // 19: pb.ListOrdersByUserRequest
-	(*UpdateOrderStatusRequest)(nil),          // 20: pb.UpdateOrderStatusRequest
-	(*DeleteOrderRequest)(nil),                // 21: pb.DeleteOrderRequest
-	(*AddToCartRequest)(nil),                  // 22: pb.AddToCartRequest
-	(*GetCartRequest)(nil),                    // 23: pb.GetCartRequest
-	(*UpdateCartQuantityRequest)(nil),         // 24: pb.UpdateCartQuantityRequest
-	(*RemoveFromCartRequest)(nil),             // 25: pb.RemoveFromCartRequest
-	(*ClearCartRequest)(nil),                  // 26: pb.ClearCartRequest
-	(*AuthResponse)(nil),                      // 27: pb.AuthResponse
-	(*UserResponse)(nil),                      // 28: pb.UserResponse
-	(*DeleteUserResponse)(nil),                // 29: pb.DeleteUserResponse
-	(*RefreshTokenResponse)(nil),              // 30: pb.RefreshTokenResponse
-	(*ProductResponse)(nil),                   // 31: pb.ProductResponse
-	(*ListAllProductsByNameResponse)(nil),     // 32: pb.ListAllProductsByNameResponse
-	(*ListProductsResponse)(nil),              // 33: pb.ListProductsResponse
-	(*DeleteProductResponse)(nil),             // 34: pb.DeleteProductResponse
-	(*ListAllProductsByCategoryResponse)(nil), // 35: pb.ListAllProductsByCategoryResponse
-	(*SearchProductsResponse)(nil),            // 36: pb.SearchProductsResponse
-	(*OrderResponse)(nil),                     // 37: pb.OrderResponse
-	(*ListOrdersResponse)(nil),                // 38: pb.ListOrdersResponse
-	(*DeleteOrderResponse)(nil),               // 39: pb.DeleteOrderResponse
-	(*CartResponse)(nil),                      // 40: pb.CartResponse
-	(*CartListResponse)(nil),                  // 41: pb.CartListResponse
+	(*AutocompleteRequest)(nil),               // 17: pb.AutocompleteRequest
+	(*CreateOrderRequest)(nil),                // 18: pb.CreateOrderRequest
+	(*GetOrderRequest)(nil),                   // 19: pb.GetOrderRequest
+	(*ListOrdersByUserRequest)(nil),           // 20: pb.ListOrdersByUserRequest
+	(*UpdateOrderStatusRequest)(nil),          // 21: pb.UpdateOrderStatusRequest
+	(*DeleteOrderRequest)(nil),                // 22: pb.DeleteOrderRequest
+	(*AddToCartRequest)(nil),                  // 23: pb.AddToCartRequest
+	(*GetCartRequest)(nil),                    // 24: pb.GetCartRequest
+	(*UpdateCartQuantityRequest)(nil),         // 25: pb.UpdateCartQuantityRequest
+	(*RemoveFromCartRequest)(nil),             // 26: pb.RemoveFromCartRequest
+	(*ClearCartRequest)(nil),                  // 27: pb.ClearCartRequest
+	(*AuthResponse)(nil),                      // 28: pb.AuthResponse
+	(*UserResponse)(nil),                      // 29: pb.UserResponse
+	(*DeleteUserResponse)(nil),                // 30: pb.DeleteUserResponse
+	(*RefreshTokenResponse)(nil),              // 31: pb.RefreshTokenResponse
+	(*ProductResponse)(nil),                   // 32: pb.ProductResponse
+	(*ListAllProductsByNameResponse)(nil),     // 33: pb.ListAllProductsByNameResponse
+	(*ListProductsResponse)(nil),              // 34: pb.ListProductsResponse
+	(*DeleteProductResponse)(nil),             // 35: pb.DeleteProductResponse
+	(*ListAllProductsByCategoryResponse)(nil), // 36: pb.ListAllProductsByCategoryResponse
+	(*SearchProductsResponse)(nil),            // 37: pb.SearchProductsResponse
+	(*AutocompleteResponse)(nil),              // 38: pb.AutocompleteResponse
+	(*OrderResponse)(nil),                     // 39: pb.OrderResponse
+	(*ListOrdersResponse)(nil),                // 40: pb.ListOrdersResponse
+	(*DeleteOrderResponse)(nil),               // 41: pb.DeleteOrderResponse
+	(*CartResponse)(nil),                      // 42: pb.CartResponse
+	(*CartListResponse)(nil),                  // 43: pb.CartListResponse
 }
 var file_service_collage_project_proto_depIdxs = []int32{
 	0,  // 0: pb.CollageProject.SignUpUser:input_type -> pb.SignUpRequest
@@ -126,46 +129,48 @@ var file_service_collage_project_proto_depIdxs = []int32{
 	14, // 15: pb.CollageProject.ListProductsByCategory:input_type -> pb.ListAllProductsByCategoryRequest
 	15, // 16: pb.CollageProject.ListProductsByType:input_type -> pb.ListAllProductsByTypeRequest
 	16, // 17: pb.CollageProject.SearchProducts:input_type -> pb.SearchProductsRequest
-	17, // 18: pb.CollageProject.CreateOrder:input_type -> pb.CreateOrderRequest
-	18, // 19: pb.CollageProject.GetOrderByID:input_type -> pb.GetOrderRequest
-	19, // 20: pb.CollageProject.ListOrders:input_type -> pb.ListOrdersByUserRequest
-	20, // 21: pb.CollageProject.UpdateOrderStatus:input_type -> pb.UpdateOrderStatusRequest
-	21, // 22: pb.CollageProject.DeleteOrder:input_type -> pb.DeleteOrderRequest
-	22, // 23: pb.CollageProject.AddToCart:input_type -> pb.AddToCartRequest
-	23, // 24: pb.CollageProject.GetCartByUser:input_type -> pb.GetCartRequest
-	24, // 25: pb.CollageProject.UpdateCartQuantity:input_type -> pb.UpdateCartQuantityRequest
-	25, // 26: pb.CollageProject.RemoveFromCart:input_type -> pb.RemoveFromCartRequest
-	26, // 27: pb.CollageProject.ClearCart:input_type -> pb.ClearCartRequest
-	27, // 28: pb.CollageProject.SignUpUser:output_type -> pb.AuthResponse
-	27, // 29: pb.CollageProject.LoginUser:output_type -> pb.AuthResponse
-	28, // 30: pb.CollageProject.GetUserByID:output_type -> pb.UserResponse
-	28, // 31: pb.CollageProject.GetUserByEmail:output_type -> pb.UserResponse
-	28, // 32: pb.CollageProject.UpdateUser:output_type -> pb.UserResponse
-	29, // 33: pb.CollageProject.DeleteUser:output_type -> pb.DeleteUserResponse
-	30, // 34: pb.CollageProject.RefreshToken:output_type -> pb.RefreshTokenResponse
-	31, // 35: pb.CollageProject.CreateProduct:output_type -> pb.ProductResponse
-	31, // 36: pb.CollageProject.GetProductByID:output_type -> pb.ProductResponse
-	31, // 37: pb.CollageProject.GetOnlyProductRequest:output_type -> pb.ProductResponse
-	32, // 38: pb.CollageProject.GetProductByUserID:output_type -> pb.ListAllProductsByNameResponse
-	33, // 39: pb.CollageProject.ListProducts:output_type -> pb.ListProductsResponse
-	31, // 40: pb.CollageProject.UpdateProduct:output_type -> pb.ProductResponse
-	34, // 41: pb.CollageProject.DeleteProduct:output_type -> pb.DeleteProductResponse
-	32, // 42: pb.CollageProject.ListProductsByName:output_type -> pb.ListAllProductsByNameResponse
-	35, // 43: pb.CollageProject.ListProductsByCategory:output_type -> pb.ListAllProductsByCategoryResponse
-	35, // 44: pb.CollageProject.ListProductsByType:output_type -> pb.ListAllProductsByCategoryResponse
-	36, // 45: pb.CollageProject.SearchProducts:output_type -> pb.SearchProductsResponse
-	37, // 46: pb.CollageProject.CreateOrder:output_type -> pb.OrderResponse
-	37, // 47: pb.CollageProject.GetOrderByID:output_type -> pb.OrderResponse
-	38, // 48: pb.CollageProject.ListOrders:output_type -> pb.ListOrdersResponse
-	37, // 49: pb.CollageProject.UpdateOrderStatus:output_type -> pb.OrderResponse
-	39, // 50: pb.CollageProject.DeleteOrder:output_type -> pb.DeleteOrderResponse
-	40, // 51: pb.CollageProject.AddToCart:output_type -> pb.CartResponse
-	41, // 52: pb.CollageProject.GetCartByUser:output_type -> pb.CartListResponse
-	40, // 53: pb.CollageProject.UpdateCartQuantity:output_type -> pb.CartResponse
-	40, // 54: pb.CollageProject.RemoveFromCart:output_type -> pb.CartResponse
-	40, // 55: pb.CollageProject.ClearCart:output_type -> pb.CartResponse
-	28, // [28:56] is the sub-list for method output_type
-	0,  // [0:28] is the sub-list for method input_type
+	17, // 18: pb.CollageProject.AutocompleteSearch:input_type -> pb.AutocompleteRequest
+	18, // 19: pb.CollageProject.CreateOrder:input_type -> pb.CreateOrderRequest
+	19, // 20: pb.CollageProject.GetOrderByID:input_type -> pb.GetOrderRequest
+	20, // 21: pb.CollageProject.ListOrders:input_type -> pb.ListOrdersByUserRequest
+	21, // 22: pb.CollageProject.UpdateOrderStatus:input_type -> pb.UpdateOrderStatusRequest
+	22, // 23: pb.CollageProject.DeleteOrder:input_type -> pb.DeleteOrderRequest
+	23, // 24: pb.CollageProject.AddToCart:input_type -> pb.AddToCartRequest
+	24, // 25: pb.CollageProject.GetCartByUser:input_type -> pb.GetCartRequest
+	25, // 26: pb.CollageProject.UpdateCartQuantity:input_type -> pb.UpdateCartQuantityRequest
+	26, // 27: pb.CollageProject.RemoveFromCart:input_type -> pb.RemoveFromCartRequest
+	27, // 28: pb.CollageProject.ClearCart:input_type -> pb.ClearCartRequest
+	28, // 29: pb.CollageProject.SignUpUser:output_type -> pb.AuthResponse
+	28, // 30: pb.CollageProject.LoginUser:output_type -> pb.AuthResponse
+	29, // 31: pb.CollageProject.GetUserByID:output_type -> pb.UserResponse
+	29, // 32: pb.CollageProject.GetUserByEmail:output_type -> pb.UserResponse
+	29, // 33: pb.CollageProject.UpdateUser:output_type -> pb.UserResponse
+	30, // 34: pb.CollageProject.DeleteUser:output_type -> pb.DeleteUserResponse
+	31, // 35: pb.CollageProject.RefreshToken:output_type -> pb.RefreshTokenResponse
+	32, // 36: pb.CollageProject.CreateProduct:output_type -> pb.ProductResponse
+	32, // 37: pb.CollageProject.GetProductByID:output_type -> pb.ProductResponse
+	32, // 38: pb.CollageProject.GetOnlyProductRequest:output_type -> pb.ProductResponse
+	33, // 39: pb.CollageProject.GetProductByUserID:output_type -> pb.ListAllProductsByNameResponse
+	34, // 40: pb.CollageProject.ListProducts:output_type -> pb.ListProductsResponse
+	32, // 41: pb.CollageProject.UpdateProduct:output_type -> pb.ProductResponse
+	35, // 42: pb.CollageProject.DeleteProduct:output_type -> pb.DeleteProductResponse
+	33, // 43: pb.CollageProject.ListProductsByName:output_type -> pb.ListAllProductsByNameResponse
+	36, // 44: pb.CollageProject.ListProductsByCategory:output_type -> pb.ListAllProductsByCategoryResponse
+	36, // 45: pb.CollageProject.ListProductsByType:output_type -> pb.ListAllProductsByCategoryResponse
+	37, // 46: pb.CollageProject.SearchProducts:output_type -> pb.SearchProductsResponse
+	38, // 47: pb.CollageProject.AutocompleteSearch:output_type -> pb.AutocompleteResponse
+	39, // 48: pb.CollageProject.CreateOrder:output_type -> pb.OrderResponse
+	39, // 49: pb.CollageProject.GetOrderByID:output_type -> pb.OrderResponse
+	40, // 50: pb.CollageProject.ListOrders:output_type -> pb.ListOrdersResponse
+	39, // 51: pb.CollageProject.UpdateOrderStatus:output_type -> pb.OrderResponse
+	41, // 52: pb.CollageProject.DeleteOrder:output_type -> pb.DeleteOrderResponse
+	42, // 53: pb.CollageProject.AddToCart:output_type -> pb.CartResponse
+	43, // 54: pb.CollageProject.GetCartByUser:output_type -> pb.CartListResponse
+	42, // 55: pb.CollageProject.UpdateCartQuantity:output_type -> pb.CartResponse
+	42, // 56: pb.CollageProject.RemoveFromCart:output_type -> pb.CartResponse
+	42, // 57: pb.CollageProject.ClearCart:output_type -> pb.CartResponse
+	29, // [29:58] is the sub-list for method output_type
+	0,  // [0:29] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

@@ -131,9 +131,9 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		server.redis.HMSet(ctx, "product:"+product.ID.String(), productData)
 		server.redis.Expire(ctx, "product:"+product.ID.String(), time.Hour*24)
 
-		// Save product with the specified autocomplete format
-		if err := saveProductInRedis(ctx, server.redis, product.ID.String(), product.Name, product.Category, product.Type); err != nil {
-			log.Printf("Failed to save product in Redis: %v", err)
+		// Index product for autocomplete
+		if err := IndexProduct(int64(product.ID.ID()), product.Name, product.Category, product.Type); err != nil {
+			log.Printf("Failed to index product: %v", err)
 		}
 	}
 
@@ -308,12 +308,48 @@ func (server *Server) ListProducts(ctx context.Context, req *pb.ListAllProductsR
 }
 
 func (server *Server) ListProductsByName(ctx context.Context, req *pb.ListAllProductsByNameRequest) (*pb.ListAllProductsByNameResponse, error) {
-	if len(strings.TrimSpace(req.GetName())) < 2 {
-		return nil, status.Errorf(codes.InvalidArgument, "product name must contain at least 2 characters")
+	if len(strings.TrimSpace(req.GetName())) < 1 {
+		return &pb.ListAllProductsByNameResponse{Products: []*pb.Product{}}, nil
 	}
-	products, err := server.store.GetProductByName(ctx, req.GetName())
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list products: %v", err)
+	// Use partial matching - try exact match first, then LIKE pattern
+	query := strings.TrimSpace(req.GetName())
+	log.Printf("Searching for products with name: '%s'", query)
+	
+	// First try exact match
+	products, err := server.store.GetProductByName(ctx, query)
+	if err != nil || len(products) == 0 {
+		// Try with LIKE pattern
+		searchPattern := "%" + strings.ToLower(query) + "%"
+		log.Printf("Trying LIKE pattern: '%s'", searchPattern)
+		products, err = server.store.GetProductByName(ctx, searchPattern)
+	}
+	
+	log.Printf("Found %d products", len(products))
+	
+	// If still no results, get some recent products as fallback
+	if err != nil || len(products) == 0 {
+		log.Println("No products found, getting recent products as fallback")
+		allProducts, fallbackErr := server.store.GetAllProducts(ctx, db.GetAllProductsParams{
+			Limit:  5,
+			Offset: 0,
+		})
+		if fallbackErr == nil {
+			products = []db.Product{}
+			for _, p := range allProducts {
+				products = append(products, db.Product{
+					ID:          p.ID,
+					Name:        p.Name,
+					Description: p.Description,
+					Price:       p.Price,
+					CreatedBy:   p.CreatedBy,
+					CreatedAt:   p.CreatedAt,
+					ProductUrl:  p.ProductUrl,
+					Category:    p.Category,
+					Type:        p.Type,
+					Stock:       p.Stock,
+				})
+			}
+		}
 	}
 
 	productResponses := []*pb.Product{}

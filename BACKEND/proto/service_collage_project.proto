@@ -131,6 +131,12 @@ service CollageProject {
            };
     }
 
+    rpc AutocompleteSearch(AutocompleteRequest) returns (AutocompleteResponse){
+      option (google.api.http) = {
+              get: "/v1/autocomplete"
+           };
+    }
+
   // ORDER
     rpc CreateOrder(CreateOrderRequest) returns (OrderResponse){
       option (google.api.http) = {

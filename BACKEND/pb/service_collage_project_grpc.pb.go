@@ -37,6 +37,7 @@ const (
 	CollageProject_ListProductsByCategory_FullMethodName = "/pb.CollageProject/ListProductsByCategory"
 	CollageProject_ListProductsByType_FullMethodName     = "/pb.CollageProject/ListProductsByType"
 	CollageProject_SearchProducts_FullMethodName         = "/pb.CollageProject/SearchProducts"
+	CollageProject_AutocompleteSearch_FullMethodName     = "/pb.CollageProject/AutocompleteSearch"
 	CollageProject_CreateOrder_FullMethodName            = "/pb.CollageProject/CreateOrder"
 	CollageProject_GetOrderByID_FullMethodName           = "/pb.CollageProject/GetOrderByID"
 	CollageProject_ListOrders_FullMethodName             = "/pb.CollageProject/ListOrders"
@@ -73,6 +74,7 @@ type CollageProjectClient interface {
 	ListProductsByCategory(ctx context.Context, in *ListAllProductsByCategoryRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error)
 	ListProductsByType(ctx context.Context, in *ListAllProductsByTypeRequest, opts ...grpc.CallOption) (*ListAllProductsByCategoryResponse, error)
 	SearchProducts(ctx context.Context, in *SearchProductsRequest, opts ...grpc.CallOption) (*SearchProductsResponse, error)
+	AutocompleteSearch(ctx context.Context, in *AutocompleteRequest, opts ...grpc.CallOption) (*AutocompleteResponse, error)
 	// ORDER
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
@@ -275,6 +277,16 @@ func (c *collageProjectClient) SearchProducts(ctx context.Context, in *SearchPro
 	return out, nil
 }
 
+func (c *collageProjectClient) AutocompleteSearch(ctx context.Context, in *AutocompleteRequest, opts ...grpc.CallOption) (*AutocompleteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AutocompleteResponse)
+	err := c.cc.Invoke(ctx, CollageProject_AutocompleteSearch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *collageProjectClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OrderResponse)
@@ -399,6 +411,7 @@ type CollageProjectServer interface {
 	ListProductsByCategory(context.Context, *ListAllProductsByCategoryRequest) (*ListAllProductsByCategoryResponse, error)
 	ListProductsByType(context.Context, *ListAllProductsByTypeRequest) (*ListAllProductsByCategoryResponse, error)
 	SearchProducts(context.Context, *SearchProductsRequest) (*SearchProductsResponse, error)
+	AutocompleteSearch(context.Context, *AutocompleteRequest) (*AutocompleteResponse, error)
 	// ORDER
 	CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error)
 	GetOrderByID(context.Context, *GetOrderRequest) (*OrderResponse, error)
@@ -474,6 +487,9 @@ func (UnimplementedCollageProjectServer) ListProductsByType(context.Context, *Li
 }
 func (UnimplementedCollageProjectServer) SearchProducts(context.Context, *SearchProductsRequest) (*SearchProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchProducts not implemented")
+}
+func (UnimplementedCollageProjectServer) AutocompleteSearch(context.Context, *AutocompleteRequest) (*AutocompleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AutocompleteSearch not implemented")
 }
 func (UnimplementedCollageProjectServer) CreateOrder(context.Context, *CreateOrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
@@ -850,6 +866,24 @@ func _CollageProject_SearchProducts_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CollageProject_AutocompleteSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AutocompleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollageProjectServer).AutocompleteSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollageProject_AutocompleteSearch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollageProjectServer).AutocompleteSearch(ctx, req.(*AutocompleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CollageProject_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateOrderRequest)
 	if err := dec(in); err != nil {
@@ -1108,6 +1142,10 @@ var CollageProject_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchProducts",
 			Handler:    _CollageProject_SearchProducts_Handler,
+		},
+		{
+			MethodName: "AutocompleteSearch",
+			Handler:    _CollageProject_AutocompleteSearch_Handler,
 		},
 		{
 			MethodName: "CreateOrder",

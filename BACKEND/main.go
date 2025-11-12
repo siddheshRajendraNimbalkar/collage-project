@@ -73,10 +73,10 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 	log.Println("Handler server registered successfully")
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3003"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
+		AllowCredentials: false,
 	})
 
 	mux := http.NewServeMux()

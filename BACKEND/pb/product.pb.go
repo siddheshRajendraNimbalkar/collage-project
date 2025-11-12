@@ -997,6 +997,178 @@ func (x *SearchProductsResponse) GetProducts() []*Product {
 	return nil
 }
 
+type AutocompleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AutocompleteRequest) Reset() {
+	*x = AutocompleteRequest{}
+	mi := &file_product_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AutocompleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AutocompleteRequest) ProtoMessage() {}
+
+func (x *AutocompleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AutocompleteRequest.ProtoReflect.Descriptor instead.
+func (*AutocompleteRequest) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *AutocompleteRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *AutocompleteRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type AutocompleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*ProductSuggestion   `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AutocompleteResponse) Reset() {
+	*x = AutocompleteResponse{}
+	mi := &file_product_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AutocompleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AutocompleteResponse) ProtoMessage() {}
+
+func (x *AutocompleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AutocompleteResponse.ProtoReflect.Descriptor instead.
+func (*AutocompleteResponse) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *AutocompleteResponse) GetItems() []*ProductSuggestion {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type ProductSuggestion struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	ImageUrl      string                 `protobuf:"bytes,3,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
+	Category      string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
+	Type          string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProductSuggestion) Reset() {
+	*x = ProductSuggestion{}
+	mi := &file_product_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProductSuggestion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductSuggestion) ProtoMessage() {}
+
+func (x *ProductSuggestion) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductSuggestion.ProtoReflect.Descriptor instead.
+func (*ProductSuggestion) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ProductSuggestion) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ProductSuggestion) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProductSuggestion) GetImageUrl() string {
+	if x != nil {
+		return x.ImageUrl
+	}
+	return ""
+}
+
+func (x *ProductSuggestion) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *ProductSuggestion) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
 var File_product_proto protoreflect.FileDescriptor
 
 const file_product_proto_rawDesc = "" +
@@ -1066,7 +1238,18 @@ const file_product_proto_rawDesc = "" +
 	"\x15SearchProductsRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\"A\n" +
 	"\x16SearchProductsResponse\x12'\n" +
-	"\bproducts\x18\x01 \x03(\v2\v.pb.ProductR\bproductsB@Z>github.com/siddheshRajendraNimbalkar/collage-prject-backend/pbb\x06proto3"
+	"\bproducts\x18\x01 \x03(\v2\v.pb.ProductR\bproducts\"A\n" +
+	"\x13AutocompleteRequest\x12\x14\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"C\n" +
+	"\x14AutocompleteResponse\x12+\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.pb.ProductSuggestionR\x05items\"\x84\x01\n" +
+	"\x11ProductSuggestion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +
+	"\timage_url\x18\x03 \x01(\tR\bimageUrl\x12\x1a\n" +
+	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x12\n" +
+	"\x04type\x18\x05 \x01(\tR\x04typeB@Z>github.com/siddheshRajendraNimbalkar/collage-prject-backend/pbb\x06proto3"
 
 var (
 	file_product_proto_rawDescOnce sync.Once
@@ -1080,7 +1263,7 @@ func file_product_proto_rawDescGZIP() []byte {
 	return file_product_proto_rawDescData
 }
 
-var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_product_proto_goTypes = []any{
 	(*Product)(nil),                           // 0: pb.Product
 	(*CreateProductRequest)(nil),              // 1: pb.CreateProductRequest
@@ -1100,18 +1283,22 @@ var file_product_proto_goTypes = []any{
 	(*ListAllProductsByCreateBy)(nil),         // 15: pb.ListAllProductsByCreateBy
 	(*SearchProductsRequest)(nil),             // 16: pb.SearchProductsRequest
 	(*SearchProductsResponse)(nil),            // 17: pb.SearchProductsResponse
+	(*AutocompleteRequest)(nil),               // 18: pb.AutocompleteRequest
+	(*AutocompleteResponse)(nil),              // 19: pb.AutocompleteResponse
+	(*ProductSuggestion)(nil),                 // 20: pb.ProductSuggestion
 }
 var file_product_proto_depIdxs = []int32{
-	0, // 0: pb.ListProductsResponse.products:type_name -> pb.Product
-	0, // 1: pb.ProductResponse.product:type_name -> pb.Product
-	0, // 2: pb.ListAllProductsByNameResponse.products:type_name -> pb.Product
-	0, // 3: pb.ListAllProductsByCategoryResponse.products:type_name -> pb.Product
-	0, // 4: pb.SearchProductsResponse.products:type_name -> pb.Product
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: pb.ListProductsResponse.products:type_name -> pb.Product
+	0,  // 1: pb.ProductResponse.product:type_name -> pb.Product
+	0,  // 2: pb.ListAllProductsByNameResponse.products:type_name -> pb.Product
+	0,  // 3: pb.ListAllProductsByCategoryResponse.products:type_name -> pb.Product
+	0,  // 4: pb.SearchProductsResponse.products:type_name -> pb.Product
+	20, // 5: pb.AutocompleteResponse.items:type_name -> pb.ProductSuggestion
+	6,  // [6:6] is the sub-list for method output_type
+	6,  // [6:6] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_product_proto_init() }
@@ -1125,7 +1312,7 @@ func file_product_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_product_proto_rawDesc), len(file_product_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

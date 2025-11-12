@@ -49,6 +49,13 @@ func NewServer(config util.Config, store *db.SQLStore) (*Server, error) {
 		}
 	}
 
+	// Initialize Redis for autocomplete
+	redisAddr := "localhost:6379"
+	if config.RedisURL != "" {
+		redisAddr = config.RedisURL
+	}
+	InitRedis(redisAddr)
+
 	server := &Server{
 		config:     config,
 		store:      store,

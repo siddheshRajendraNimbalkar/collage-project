@@ -99,3 +99,20 @@ message SearchProductsRequest {
 message SearchProductsResponse {
   repeated Product products = 1;
 }
+
+message AutocompleteRequest {
+  string query = 1;
+  int32 limit = 2;
+}
+
+message AutocompleteResponse {
+  repeated ProductSuggestion items = 1;
+}
+
+message ProductSuggestion {
+  string id = 1;
+  string name = 2;
+  string image_url = 3;
+  string category = 4;
+  string type = 5;
+}

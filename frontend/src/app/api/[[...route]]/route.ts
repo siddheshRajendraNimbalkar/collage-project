@@ -5,34 +5,27 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
     
-    if (!query || query.length < 2) {
-      return NextResponse.json({ results: [] });
+    if (!query || query.length < 1) {
+      return NextResponse.json({ items: [] });
     }
 
-    // Call backend API for advanced search
+    // Call backend autocomplete API
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
-    const response = await fetch(`${backendUrl}/v1/search`, {
-      method: 'POST',
+    const response = await fetch(`${backendUrl}/v1/autocomplete?query=${encodeURIComponent(query)}&limit=8`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query: query }),
     });
     
     if (!response.ok) {
-      return NextResponse.json({ results: [] });
+      return NextResponse.json({ items: [] });
     }
 
     const data = await response.json();
-    const results = data.products?.map((product: any) => ({
-      id: product.id,
-      name: product.name,
-      image: product.product_url || '/placeholder.jpg'
-    })) || [];
-
-    return NextResponse.json({ results });
+    return NextResponse.json({ items: data.items || [] });
   } catch (error) {
-    console.error('Search error:', error);
-    return NextResponse.json({ results: [] });
+    console.error('Autocomplete error:', error);
+    return NextResponse.json({ items: [] });
   }
 }
