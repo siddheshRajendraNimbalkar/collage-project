@@ -6,12 +6,15 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/cors"
 
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/gapi"
+	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/internal/handlers"
+	redisClient "github.com/siddheshRajendraNimbalkar/collage-prject-backend/internal/redis"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
 	"google.golang.org/grpc"
@@ -37,6 +40,15 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+
+	// Initialize Redis
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		redisURL = "localhost:6379"
+	}
+	if err := redisClient.InitRedis(redisURL); err != nil {
+		log.Printf("Redis connection failed: %v", err)
+	}
 
 	// Start only the HTTP API server
 	grpcApiClient(*store, config)
@@ -81,6 +93,7 @@ func grpcApiClient(store db.SQLStore, config util.Config) {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
+	mux.HandleFunc("/api/autocomplete", handlers.AutocompleteHandler)
 
 	log.Printf("About to listen on: %s", config.APIADDR)
 	listener, err := net.Listen("tcp", config.APIADDR)

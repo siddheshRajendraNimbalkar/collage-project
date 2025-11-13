@@ -109,13 +109,14 @@ const Page = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-3xl">
-      <Card className="shadow-lg border border-gray-200 rounded-xl bg-white">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-semibold text-gray-800">
-            Add New Product
-          </CardTitle>
-        </CardHeader>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto p-6 max-w-3xl">
+        <Card className="shadow-lg border border-gray-200 rounded-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-semibold text-gray-800">
+              Add New Product
+            </CardTitle>
+          </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -219,7 +220,7 @@ const Page = () => {
               </div>
 
               {/* Category and Type */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="category" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
@@ -231,9 +232,9 @@ const Page = () => {
                       value={field.value}
                     >
                       <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
-                      <SelectContent className="bg-white">
+                      <SelectContent>
                         {Object.keys(categoryTypes).map((category) => (
-                          <SelectItem key={category} value={category} className="cursor-pointer">{category}</SelectItem>
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -254,7 +255,7 @@ const Page = () => {
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white">
+                        <SelectContent>
                           {availableTypes.map((type: string) => (
                             <SelectItem key={type} value={type}>
                               {type}
@@ -270,7 +271,7 @@ const Page = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full"
                 disabled={loading}
               >
                 {loading ? "Submitting..." : "Submit Product"}
@@ -281,17 +282,18 @@ const Page = () => {
       </Card>
 
       {/* Dialog Box */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle>{messageType === "success" ? "Success" : "Error"}</DialogTitle>
-            <DialogDescription>{message}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setIsDialogOpen(false)} className={`${messageType == 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{messageType === "success" ? "Success" : "Error"}</DialogTitle>
+              <DialogDescription>{message}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setIsDialogOpen(false)} variant={messageType === 'success' ? "default" : "destructive"}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

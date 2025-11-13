@@ -7,6 +7,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
+	redisClient "github.com/siddheshRajendraNimbalkar/collage-prject-backend/internal/redis"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/token"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
@@ -54,7 +55,8 @@ func NewServer(config util.Config, store *db.SQLStore) (*Server, error) {
 	if config.RedisURL != "" {
 		redisAddr = config.RedisURL
 	}
-	InitRedis(redisAddr)
+	// Initialize the global Redis client
+	redisClient.InitRedis(redisAddr)
 
 	server := &Server{
 		config:     config,

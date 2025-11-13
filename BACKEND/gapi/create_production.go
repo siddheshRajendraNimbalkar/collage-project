@@ -7,11 +7,10 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
+	redisClient "github.com/siddheshRajendraNimbalkar/collage-prject-backend/internal/redis"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/pb"
 	"github.com/siddheshRajendraNimbalkar/collage-prject-backend/util"
 	"google.golang.org/grpc/codes"
@@ -26,64 +25,7 @@ func parseFloat(price string) float64 {
 	return parsedPrice
 }
 
-func saveProductInRedis(ctx context.Context, client *redis.Client, productID string, name, category, productType string) error {
-	pipe := client.Pipeline()
 
-	// Clean inputs
-	name = strings.TrimSpace(strings.ToLower(name))
-	category = strings.TrimSpace(strings.ToLower(category))
-	productType = strings.TrimSpace(strings.ToLower(productType))
-
-	// Add the complete sentence with *
-	fullSentence := fmt.Sprintf("%s %s %s*", name, category, productType)
-	pipe.ZAdd(ctx, "autocomplete", redis.Z{Score: 0, Member: fullSentence})
-	pipe.SAdd(ctx, "search:"+fullSentence, productID)
-
-	// Generate all combinations as specified
-	combinations := []string{
-		// Name prefixes
-		name[:1], name[:2], name,
-		// Name + category prefixes
-		name + " " + category[:1], name + " " + category,
-		// Name + category + type
-		name + " " + category + " " + productType,
-		// Category prefixes
-		category[:1], category,
-		// Category + type prefixes
-		category + " " + productType[:1], category + " " + productType,
-		// Category + type + name prefixes
-		category + " " + productType + " " + name[:1],
-		category + " " + productType + " " + name[:2],
-		category + " " + productType + " " + name,
-		// Type prefixes
-		productType[:1], productType,
-		// Type + name prefixes
-		productType + " " + name[:1], productType + " " + name[:2], productType + " " + name,
-		// Type + name + category prefixes
-		productType + " " + name + " " + category[:1], productType + " " + name + " " + category,
-		// Type + category prefixes
-		productType + " " + category[:1], productType + " " + category,
-		// Type + category + name prefixes
-		productType + " " + category + " " + name[:1],
-		productType + " " + category + " " + name[:2],
-		productType + " " + category + " " + name,
-	}
-
-	// Add all valid combinations
-	for _, combo := range combinations {
-		if len(combo) > 0 && !strings.Contains(combo, "[:]") {
-			pipe.ZAdd(ctx, "autocomplete", redis.Z{Score: 0, Member: combo})
-			pipe.SAdd(ctx, "search:"+combo, productID)
-		}
-	}
-
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("redis pipeline execution failed: %w", err)
-	}
-
-	return nil
-}
 
 
 
@@ -114,27 +56,11 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 	}
 
 	// Save to Redis for advanced autocomplete
-	if server.redis != nil {
-		// Cache the product data
-		productData := map[string]interface{}{
-			"id":          product.ID.String(),
-			"name":        product.Name,
-			"description": product.Description,
-			"price":       product.Price,
-			"stock":       product.Stock,
-			"created_by":  product.CreatedBy.UUID.String(),
-			"created_at":  product.CreatedAt.Time.Format("2006-01-02 15:04:05"),
-			"product_url": product.ProductUrl,
-			"category":    product.Category,
-			"type":        product.Type,
-		}
-		server.redis.HMSet(ctx, "product:"+product.ID.String(), productData)
-		server.redis.Expire(ctx, "product:"+product.ID.String(), time.Hour*24)
-
-		// Index product for autocomplete
-		if err := IndexProduct(int64(product.ID.ID()), product.Name, product.Category, product.Type); err != nil {
-			log.Printf("Failed to index product: %v", err)
-		}
+	log.Printf("Attempting to index product: %s, %s, %s, %s", product.ID.String(), product.Name, product.Category, product.Type)
+	if err := redisClient.IndexProduct(product.ID.String(), product.Name, product.Category, product.Type, product.ProductUrl); err != nil {
+		log.Printf("Failed to index product: %v", err)
+	} else {
+		log.Printf("Successfully indexed product: %s", product.Name)
 	}
 
 

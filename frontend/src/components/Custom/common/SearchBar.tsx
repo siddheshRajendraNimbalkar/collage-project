@@ -21,33 +21,25 @@ const SearchBar = () => {
       const fetchSuggestions = async () => {
         setLoading(true);
         try {
-          // Use existing product search endpoint
-          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
-          const res = await fetch(`${backendUrl}/v1/api/getProductName`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: query }),
-          });
+          // Use new Redis autocomplete endpoint
+          const res = await fetch(`/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=8`);
+          console.log('Response status:', res.status);
           if (!res.ok) {
             console.error('Search failed:', res.status, res.statusText);
+            const errorText = await res.text();
+            console.error('Error response:', errorText);
             return;
           }
           const data = await res.json();
           console.log('Autocomplete data:', data);
-          console.log('Response status:', res.status);
-          const products = data.products || [];
-          console.log('Products found:', products.length);
-          if (products.length > 0) {
-            console.log('First product:', products[0]);
-          }
-          setSuggestions(products.slice(0, 8).map((product: any) => ({
-            id: product.id,
-            name: product.name,
-            image: product.product_url || '/placeholder.jpg',
-            category: product.category,
-            type: product.type
+          console.log('Items found:', data.items?.length || 0);
+          const items = data.items || [];
+          setSuggestions(items.map((item: any) => ({
+            id: item.id,
+            name: item.title,
+            image: item.image || '/placeholder.jpg',
+            category: item.category,
+            type: item.type
           })));
           setShowSuggestions(true);
           setSelectedIndex(-1);

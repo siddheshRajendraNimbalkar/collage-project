@@ -1,0 +1,181 @@
+'use client'
+import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+
+interface Suggestion {
+  id: string
+  title: string
+}
+
+interface SearchBarProps {
+  placeholder?: string
+  className?: string
+}
+
+export default function SearchBar({ 
+  placeholder = "Search...", 
+  className = "" 
+}: SearchBarProps) {
+  const [query, setQuery] = useState("")
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [loading, setLoading] = useState(false)
+  
+  const inputRef = useRef<HTMLInputElement>(null)
+  const suggestionsRef = useRef<HTMLUListElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (abortRef.current) {
+      abortRef.current.abort()
+    }
+
+    if (!query.trim()) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    const fetchSuggestions = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(
+          `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=10`,
+          { signal: controller.signal }
+        )
+        
+        if (!response.ok) throw new Error('Search failed')
+        
+        const data = await response.json()
+        setSuggestions(data.items || [])
+        setShowSuggestions(true)
+        setSelectedIndex(-1)
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Search error:', error)
+          setSuggestions([])
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const timeoutId = setTimeout(fetchSuggestions, 300)
+
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [query])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setSelectedIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        )
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setSelectedIndex(prev => 
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        )
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (selectedIndex >= 0) {
+          handleSelect(suggestions[selectedIndex])
+        } else if (query.trim()) {
+          handleSearch()
+        }
+        break
+      case 'Escape':
+        setShowSuggestions(false)
+        setSelectedIndex(-1)
+        inputRef.current?.blur()
+        break
+    }
+  }
+
+  const handleSelect = (suggestion: Suggestion) => {
+    setQuery(suggestion.title)
+    setShowSuggestions(false)
+    router.push(`/search?query=${encodeURIComponent(suggestion.title)}`)
+  }
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      setShowSuggestions(false)
+      router.push(`/search?query=${encodeURIComponent(query)}`)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleSearch()
+  }
+
+  return (
+    <div className={`relative w-full max-w-2xl ${className}`}>
+      <form onSubmit={handleSubmit} className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => query && setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          placeholder={placeholder}
+          className="w-full px-4 py-3 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        
+        <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        {loading && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+      </form>
+
+      {showSuggestions && suggestions.length > 0 && (
+        <ul
+          ref={suggestionsRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto"
+        >
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={suggestion.id}
+              onMouseDown={() => handleSelect(suggestion)}
+              className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                index === selectedIndex 
+                  ? 'bg-blue-50 text-blue-900' 
+                  : 'hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span className="text-sm font-medium">{suggestion.title}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
