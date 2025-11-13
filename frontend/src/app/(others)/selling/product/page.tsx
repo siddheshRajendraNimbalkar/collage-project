@@ -101,11 +101,11 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen overflow-x-hidden">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-gray-100">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl shadow-md p-4 md:p-6 mb-6 md:mb-8 border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="bg-blue-100 p-3 rounded-xl">
                 <Package2 className="h-8 w-8 text-blue-500" />
@@ -115,8 +115,8 @@ const ProductPage = () => {
                 <p className="text-gray-500 mt-1">Manage and monitor your product inventory</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 md:w-64">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
+              <div className="relative flex-1 sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search products..."
@@ -147,7 +147,7 @@ const ProductPage = () => {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredProducts.map((product: any, index: number) => (
               <Card
               key={product.id}
@@ -167,8 +167,8 @@ const ProductPage = () => {
                   <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
                   <span className="text-gray-500 text-sm">{product.type}</span>
                 </CardHeader>
-                <CardContent>
-                  <div className="relative h-52 overflow-hidden bg-gray-100 rounded-2xl">
+                <CardContent className="p-4">
+                  <div className="relative h-48 sm:h-52 overflow-hidden bg-gray-100 rounded-2xl">
                     <Image
                       src={product.product_url}
                       alt={product.name}
@@ -177,11 +177,11 @@ const ProductPage = () => {
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105 rounded-2xl"
                     />
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-3">
-                    <span className="text-black font-bold text-lg">
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-3">
+                    <span className="text-black font-bold text-base sm:text-lg truncate">
                       ₹{product.price.toFixed(2)}
                     </span>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium border border-blue-100">
+                    <span className="px-2 sm:px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs sm:text-sm font-medium border border-blue-100 truncate max-w-20 sm:max-w-none">
                       {product.category}
                     </span>
                   </div>

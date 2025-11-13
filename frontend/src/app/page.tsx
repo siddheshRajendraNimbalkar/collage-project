@@ -12,7 +12,7 @@ export default function Home() {
         <Navbar />
       </div>
 
-      <div className="min-h-[25vh] pt-6 relative z-40 border-b-[1px] border-[#AAC4F5] bg-[#FFF2C6]">
+      <div className="min-h-[25vh] pt-6 relative z-40 border-b-[1px] border-white bg-[#242423]">
         <SearchBar />
       </div>
       <div>
