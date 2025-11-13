@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }else{
     
   return (
-    <div className="flex h-[100vh] w-full bg-stone-50 ">
+    <div className="flex h-[100vh] w-full bg-stone-50 overflow-hidden">
       {/* Sidebar */}
       <motion.nav
         className="relative bg-white shadow-lg flex flex-col border-r border-stone-200"
