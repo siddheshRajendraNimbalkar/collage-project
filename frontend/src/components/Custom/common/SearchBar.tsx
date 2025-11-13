@@ -139,7 +139,7 @@ const SearchBar = () => {
                   className={`px-4 py-3 cursor-pointer transition-all flex items-center gap-4 border-b border-gray-800 last:border-b-0 ${
                     index === selectedIndex 
                       ? 'bg-[#FF90E8]/20 border-[#FF90E8]/50' 
-                      : 'hover:bg-gray-800/50'
+                      : 'hover:bg-zinc-900'
                   }`}
                 >
                   <div className="relative">

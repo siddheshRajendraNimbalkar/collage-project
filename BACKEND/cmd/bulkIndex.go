@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"os"
 
 	_ "github.com/lib/pq"
 	db "github.com/siddheshRajendraNimbalkar/collage-prject-backend/db/sqlc"
@@ -18,10 +17,11 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	redisURL := os.Getenv("REDIS_URL")
+	redisURL := config.RedisURL
 	if redisURL == "" {
 		redisURL = "localhost:6379"
 	}
+	log.Printf("Using Redis URL: %s", redisURL)
 	
 	if err := redisClient.InitRedis(redisURL); err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)

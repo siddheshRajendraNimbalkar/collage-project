@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
 import { SingleImageDropzoneUsage } from "@/components/Custom/Dashbords/ProductImage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+import { Loader } from "@/components/ui/loader";
 
 const categoryTypes: Record<string, string[]> = {
   art: ["Photograph", "Pattern", "3d", "Picture"],
@@ -33,7 +35,10 @@ const Page = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const router = useRouter();
   const availableTypes = selectedCategory ? categoryTypes[selectedCategory] || [] : [];
 
   const productSchema = z.object({
@@ -156,6 +161,41 @@ const Page = () => {
     } finally {
       setLoading(false);
       setIsDialogOpen(true);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/api/deleteProduct`,
+        { id: params.productID },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setMessage("Product deleted successfully!");
+      setMessageType("success");
+      setDeleteDialogOpen(false);
+      setIsDialogOpen(true);
+      
+      setTimeout(() => {
+        router.push("/selling/product");
+      }, 2000);
+    } catch (error: any) {
+      setMessage(error?.response?.data?.message || "Failed to delete product");
+      setMessageType("error");
+      setDeleteDialogOpen(false);
+      setIsDialogOpen(true);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -322,13 +362,31 @@ const Page = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={loading}
-              >
-                {loading ? "Updating..." : "Update Product"}
-              </Button>
+              <div className="space-y-4">
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader size="sm" />
+                      Updating...
+                    </div>
+                  ) : (
+                    "Update Product"
+                  )}
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  Delete Product
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>
@@ -347,6 +405,41 @@ const Page = () => {
               className={`${messageType === 'success' ? "bg-green-800" : "bg-red-800"} text-white hover:bg-black hover:text-white`}
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader size="sm" />
+                  Deleting...
+                </div>
+              ) : (
+                "Delete"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

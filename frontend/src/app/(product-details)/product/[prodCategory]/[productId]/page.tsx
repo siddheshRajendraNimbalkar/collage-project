@@ -212,7 +212,7 @@ const Page = () => {
                                         <div>
                                             <h1 className="text-4xl font-bold text-white mb-3">{product.name}</h1>
                                         </div>
-                                        {product.isNew ?
+                                        {/* {product.isNew ?
                                             <div className='bg-green-500 cursor-pointer flex justify-between items-center text-white pl-4 pr-4 pt-2 pb-2 mb-3 rounded-2xl'>
                                                 <div className='h-3 w-3 bg-white mr-3 rounded-3xl'></div>
                                                 <div>New</div>
@@ -222,7 +222,7 @@ const Page = () => {
                                                 <div className='h-3 w-3 bg-white mr-3 rounded-3xl'></div>
                                                 <div>2-Hand</div>
                                             </div>
-                                        }
+                                        } */}
                                     </div>
 
                                     <Card className="bg-white/5 border-none cursor-pointer  hover:bg-white/10">

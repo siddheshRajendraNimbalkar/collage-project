@@ -55,12 +55,13 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		return nil, status.Errorf(codes.Internal, "failed to create product: %v", err)
 	}
 
-	// Save to Redis for advanced autocomplete
-	log.Printf("Attempting to index product: %s, %s, %s, %s", product.ID.String(), product.Name, product.Category, product.Type)
+	// Save to Redis for advanced autocomplete AFTER successful DB commit
+	log.Printf("Attempting to index product: ID=%s, Name=%s, Category=%s, Type=%s", product.ID.String(), product.Name, product.Category, product.Type)
 	if err := redisClient.IndexProduct(product.ID.String(), product.Name, product.Category, product.Type, product.ProductUrl); err != nil {
-		log.Printf("Failed to index product: %v", err)
+		log.Printf("CRITICAL: Failed to index product in Redis: %v", err)
+		// Don't fail the request, but log the error prominently
 	} else {
-		log.Printf("Successfully indexed product: %s", product.Name)
+		log.Printf("SUCCESS: Indexed product in Redis: %s", product.Name)
 	}
 
 

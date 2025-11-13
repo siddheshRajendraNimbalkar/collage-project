@@ -21,6 +21,7 @@ func AutocompleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	prefix := r.URL.Query().Get("prefix")
 	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
 	
 	limit := 10
 	if limitStr != "" {
@@ -28,8 +29,15 @@ func AutocompleteHandler(w http.ResponseWriter, r *http.Request) {
 			limit = l
 		}
 	}
+	
+	offset := 0
+	if offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
 
-	results, err := redisClient.AutocompleteSearch(prefix, limit)
+	results, err := redisClient.AutocompleteSearchWithOffset(prefix, limit, offset)
 	if err != nil {
 		http.Error(w, "Search failed", http.StatusInternalServerError)
 		return

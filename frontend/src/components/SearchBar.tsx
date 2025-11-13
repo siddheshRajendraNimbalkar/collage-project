@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader } from './ui/loader'
 
 interface Suggestion {
   id: string
@@ -21,6 +22,8 @@ export default function SearchBar({
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [offset, setOffset] = useState(0)
   
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLUListElement>(null)
@@ -32,7 +35,7 @@ export default function SearchBar({
       abortRef.current.abort()
     }
 
-    if (!query.trim()) {
+    if (!query.trim() || query.trim().length < 2) {
       setSuggestions([])
       setShowSuggestions(false)
       return
@@ -45,7 +48,7 @@ export default function SearchBar({
       setLoading(true)
       try {
         const response = await fetch(
-          `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=10`,
+          `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5`,
           { signal: controller.signal }
         )
         
@@ -53,6 +56,8 @@ export default function SearchBar({
         
         const data = await response.json()
         setSuggestions(data.items || [])
+        setHasMore((data.items || []).length === 5)
+        setOffset(5)
         setShowSuggestions(true)
         setSelectedIndex(-1)
       } catch (error: any) {
@@ -72,6 +77,37 @@ export default function SearchBar({
       controller.abort()
     }
   }, [query])
+
+  const loadMoreSuggestions = async () => {
+    if (!hasMore || loading) return
+    
+    setLoading(true)
+    try {
+      const response = await fetch(
+        `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5&offset=${offset}`
+      )
+      
+      if (!response.ok) throw new Error('Failed to load more')
+      
+      const data = await response.json()
+      const newItems = data.items || []
+      
+      setSuggestions(prev => [...prev, ...newItems])
+      setHasMore(newItems.length === 5)
+      setOffset(prev => prev + 5)
+    } catch (error) {
+      console.error('Error loading more suggestions:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    if (scrollHeight - scrollTop <= clientHeight + 10 && hasMore) {
+      loadMoreSuggestions()
+    }
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) return
@@ -146,7 +182,7 @@ export default function SearchBar({
 
         {loading && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <Loader size="sm" />
           </div>
         )}
       </form>
@@ -154,6 +190,7 @@ export default function SearchBar({
       {showSuggestions && suggestions.length > 0 && (
         <ul
           ref={suggestionsRef}
+          onScroll={handleScroll}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto"
         >
           {suggestions.map((suggestion, index) => (
@@ -174,6 +211,18 @@ export default function SearchBar({
               </div>
             </li>
           ))}
+          {hasMore && (
+            <li className="px-4 py-2 text-center text-gray-500 text-sm">
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader size="sm" />
+                  Loading more...
+                </div>
+              ) : (
+                'Scroll for more'
+              )}
+            </li>
+          )}
         </ul>
       )}
     </div>
