@@ -110,17 +110,17 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f5f5f5] rounded-md">
       <div className="container mx-auto p-6 max-w-3xl">
         <Card className="shadow-lg border border-gray-200 rounded-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-semibold text-gray-800">
+            <CardTitle className="text-3xl font-semibold bg-slate-100 text-gray-800">
               Add New Product
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
                 {/* Image Upload */}
                 <FormField
                   control={form.control}

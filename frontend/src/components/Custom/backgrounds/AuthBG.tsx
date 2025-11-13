@@ -25,7 +25,7 @@ const AuthBG = ({ children }: { children?: ReactNode }) => {
   }, []);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden">
       {/* Background Grid */}
       <div 
         className="absolute inset-0 grid"
