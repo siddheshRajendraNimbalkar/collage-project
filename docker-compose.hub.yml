@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: collage_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: collage-project-backend
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - collage_network
+
+  redis:
+    image: redis:7
+    container_name: collage_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - collage_network
+
+  backend:
+    image: siddheshrajengranimbalkar/collage-backend:latest
+    container_name: collage_backend
+    ports:
+      - "9090:9090"
+    environment:
+      - DBDRIVE=postgres
+      - DBSOURCE=postgresql://root:password@postgres:5432/collage-project-backend?sslmode=disable
+      - ADDR=0.0.0.0:8080
+      - APIADDR=0.0.0.0:9090
+      - SECRET_KEY=abcdefghijklmnopqrstuvwxyz123456
+      - REFRESH_TOKEN_EXPIRES_IN=168h
+      - ACCESS_TOKEN_EXPIRES_IN=15h
+      - REDIS_URL=redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - collage_network
+
+  frontend:
+    image: siddheshrajengranimbalkar/collage-frontend:latest
+    container_name: collage_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:9090
+    depends_on:
+      - backend
+    networks:
+      - collage_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  collage_network:
+    driver: bridge
