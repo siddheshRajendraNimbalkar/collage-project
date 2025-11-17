@@ -1,23 +1,8 @@
 {
-  "name": "collage-project",
+  "name": "collage-project-api",
   "version": "1.0.0",
-  "main": "migrate-data.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/siddheshRajendraNimbalkar/collage-project.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/siddheshRajendraNimbalkar/collage-project/issues"
-  },
-  "homepage": "https://github.com/siddheshRajendraNimbalkar/collage-project#readme",
-  "description": "",
+  "type": "module",
   "dependencies": {
-    "redis": "^5.9.0"
+    "pg": "^8.11.3"
   }
 }
