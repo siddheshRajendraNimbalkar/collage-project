@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: collage-backend
+    env: docker
+    dockerfilePath: ./BACKEND/Dockerfile
+    dockerContext: ./BACKEND
+    envVars:
+      - key: DBSOURCE
+        fromDatabase:
+          name: collage-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: collage-redis
+          property: connectionString
+      - key: APIADDR
+        value: 0.0.0.0:10000
+      - key: SECRET_KEY
+        value: abcdefghijklmnopqrstuvwxyz123456
+
+  - type: web
+    name: collage-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: collage-backend
+          property: host
+
+databases:
+  - name: collage-postgres
+    databaseName: collage_project_backend
+    user: collage_user
+
+  - name: collage-redis
+    type: redis
