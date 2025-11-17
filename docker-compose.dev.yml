@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: collage_postgres_dev
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: collage-project-backend
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - collage_dev_network
+
+  redis:
+    image: redis:7
+    container_name: collage_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - collage_dev_network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  collage_dev_network:
+    driver: bridge
