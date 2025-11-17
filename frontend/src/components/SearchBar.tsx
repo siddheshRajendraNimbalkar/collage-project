@@ -49,10 +49,20 @@ export default function SearchBar({
       try {
         const response = await fetch(
           `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5`,
-          { signal: controller.signal }
+          { 
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
         )
         
-        if (!response.ok) throw new Error('Search failed')
+        if (!response.ok) {
+          console.error(`Search failed: ${response.status} ${response.statusText}`)
+          setSuggestions([])
+          setShowSuggestions(false)
+          return
+        }
         
         const data = await response.json()
         setSuggestions(data.items || [])
@@ -64,6 +74,7 @@ export default function SearchBar({
         if (error.name !== 'AbortError') {
           console.error('Search error:', error)
           setSuggestions([])
+          setShowSuggestions(false)
         }
       } finally {
         setLoading(false)
@@ -84,10 +95,18 @@ export default function SearchBar({
     setLoading(true)
     try {
       const response = await fetch(
-        `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5&offset=${offset}`
+        `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5&offset=${offset}`,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       )
       
-      if (!response.ok) throw new Error('Failed to load more')
+      if (!response.ok) {
+        console.error('Failed to load more suggestions:', response.status)
+        return
+      }
       
       const data = await response.json()
       const newItems = data.items || []
@@ -97,6 +116,7 @@ export default function SearchBar({
       setOffset(prev => prev + 5)
     } catch (error) {
       console.error('Error loading more suggestions:', error)
+      setHasMore(false)
     } finally {
       setLoading(false)
     }

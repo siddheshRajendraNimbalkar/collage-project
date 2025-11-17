@@ -22,7 +22,7 @@ const SearchBar = () => {
         setLoading(true);
         try {
           // Use new Redis autocomplete endpoint
-          const res = await fetch(`/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=8`);
+          const res = await fetch(`https://siddhesh-api.vercel.app/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=8`);
           console.log('Response status:', res.status);
           if (!res.ok) {
             console.error('Search failed:', res.status, res.statusText);
