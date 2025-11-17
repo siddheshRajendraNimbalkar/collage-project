@@ -1,10 +1,29 @@
 'use client'
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import SearchBar from '@/components/SearchBar'
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('query') || ''
+
+  return (
+    <>
+      {query && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Search Results for "{query}"
+          </h1>
+          <p className="text-gray-600">
+            Search functionality is ready! Integrate with your backend to show actual results.
+          </p>
+        </div>
+      )}
+    </>
+  )
+}
+
+export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -16,16 +35,9 @@ export default function SearchPage() {
           />
         </div>
 
-        {query && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Search Results for "{query}"
-            </h1>
-            <p className="text-gray-600">
-              Search functionality is ready! Integrate with your backend to show actual results.
-            </p>
-          </div>
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          <SearchContent />
+        </Suspense>
       </div>
     </div>
   )

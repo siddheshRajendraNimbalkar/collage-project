@@ -8,7 +8,7 @@ export async function GET(request: Request) {
       return Response.json({ query: prefix, items: [] })
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090'
+    const backendUrl = process.env.BACKEND_URL || 'http://backend:9090'
     const response = await fetch(
       `${backendUrl}/api/autocomplete?prefix=${encodeURIComponent(prefix)}&limit=${limit}`,
       {
