@@ -93,7 +93,7 @@ const SwiperSlider = ({ slides }: SwiperSliderProps) => {
                   alt={slide.name}
                   fill
                   className="object-cover"
-                  priority={index === 0}
+                  loading="lazy"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />

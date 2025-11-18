@@ -45,10 +45,13 @@ export default function SearchBar({
     abortRef.current = controller
 
     const fetchSuggestions = async () => {
+      console.log('🔍 Fetching suggestions for query:', query)
       setLoading(true)
       try {
+        const url = `http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5`
+        console.log('📡 API URL:', url)
         const response = await fetch(
-          `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5`,
+          url,
           { 
             signal: controller.signal,
             headers: {
@@ -56,15 +59,18 @@ export default function SearchBar({
             }
           }
         )
+        console.log('📥 Response status:', response.status)
         
         if (!response.ok) {
-          console.error(`Search failed: ${response.status} ${response.statusText}`)
+          console.error(`❌ Search failed: ${response.status} ${response.statusText}`)
           setSuggestions([])
           setShowSuggestions(false)
           return
         }
         
         const data = await response.json()
+        console.log('📊 Response data:', data)
+        console.log('📄 Items found:', data.items?.length || 0)
         setSuggestions(data.items || [])
         setHasMore((data.items || []).length === 5)
         setOffset(5)
@@ -72,11 +78,17 @@ export default function SearchBar({
         setSelectedIndex(-1)
       } catch (error: any) {
         if (error.name !== 'AbortError') {
-          console.error('Search error:', error)
+          console.error('⚠️ Search error:', error)
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          })
           setSuggestions([])
           setShowSuggestions(false)
         }
       } finally {
+        console.log('✅ Search completed, loading:', false)
         setLoading(false)
       }
     }
@@ -95,7 +107,7 @@ export default function SearchBar({
     setLoading(true)
     try {
       const response = await fetch(
-        `/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5&offset=${offset}`,
+        `http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=5&offset=${offset}`,
         {
           headers: {
             'Content-Type': 'application/json'

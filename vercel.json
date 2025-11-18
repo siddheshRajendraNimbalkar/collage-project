@@ -3,8 +3,5 @@
     "api/autocomplete.js": {
       "maxDuration": 10
     }
-  },
-  "env": {
-    "DATABASE_URL": "@database_url"
   }
 }
