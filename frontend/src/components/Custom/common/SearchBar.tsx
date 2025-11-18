@@ -12,20 +12,110 @@ const SearchBar = () => {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    // Disable autocomplete temporarily
-    setSuggestions([]);
-    setShowSuggestions(false);
+    if (!query.trim() || query.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      console.log('🔍 Fetching suggestions for:', query);
+      setLoading(true);
+      setOffset(0);
+      try {
+        const url = `http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=20&offset=0`;
+        console.log('📡 API URL:', url);
+        const response = await fetch(url);
+        console.log('📥 Response status:', response.status);
+        
+        if (!response.ok) {
+          console.error('❌ Search failed:', response.status);
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('📊 Response data:', data);
+        const uniqueItems = [];
+        const seenNames = new Set();
+        for (const item of data.items || []) {
+          if (!seenNames.has(item.name) && uniqueItems.length < 5) {
+            uniqueItems.push(item);
+            seenNames.add(item.name);
+          }
+        }
+        setSuggestions(uniqueItems);
+        setHasMore(uniqueItems.length === 5);
+        setOffset(5);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('⚠️ Search error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
   }, [query]);
 
-  const handleSelect = (value: any) => {
+  const loadMore = async () => {
+    if (!hasMore || loading) return;
+    setLoading(true);
+    try {
+      const url = `http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(query)}&limit=20&offset=${offset}`;
+      const response = await fetch(url);
+      if (!response.ok) return;
+      const data = await response.json();
+      const existingNames = new Set(suggestions.map(s => s.name));
+      const newItems = [];
+      for (const item of data.items || []) {
+        if (!existingNames.has(item.name) && newItems.length < 5) {
+          newItems.push(item);
+          existingNames.add(item.name);
+        }
+      }
+      setSuggestions(prev => [...prev, ...newItems]);
+      setHasMore(newItems.length === 5);
+      setOffset(prev => prev + 20);
+    } catch (error) {
+      console.error('Load more error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 10 && hasMore) {
+      loadMore();
+    }
+  };
+
+  const handleSelect = async (value: any) => {
     setQuery(value.name);
     setShowSuggestions(false);
-    router.push(`/product/search/${value.id}`);
+    
+    // Check if multiple products exist with same name
+    try {
+      const response = await fetch(`http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(value.name)}&limit=50`);
+      const data = await response.json();
+      const sameNameProducts = (data.items || []).filter(item => item.name.toLowerCase() === value.name.toLowerCase());
+      
+      if (sameNameProducts.length > 1) {
+        router.push(`/products/${encodeURIComponent(value.name)}`);
+      } else {
+        router.push(`/product/${value.category}/${value.id}`);
+      }
+    } catch (error) {
+      router.push(`/product/${value.id}`);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -86,7 +176,42 @@ const SearchBar = () => {
         />
       </form>
 
-
+      {/* Suggestions Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div 
+          className="absolute z-50 left-10 right-10 mt-2 bg-black/90 backdrop-blur-sm border border-[#FF90E8] rounded-lg shadow-2xl max-h-80 overflow-auto"
+          onScroll={handleScroll}
+        >
+          {suggestions.map((suggestion, index) => (
+            <div
+              key={suggestion.id}
+              onMouseDown={() => handleSelect(suggestion)}
+              className={`px-4 py-3 cursor-pointer border-b border-gray-700 last:border-b-0 transition-all duration-200 ${
+                index === selectedIndex 
+                  ? 'bg-[#FF90E8]/20 text-[#FF90E8]' 
+                  : 'hover:bg-white/10 text-white'
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <img 
+                  src={suggestion.image} 
+                  alt={suggestion.name}
+                  className="w-12 h-12 object-cover rounded-lg border border-gray-600"
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold">{suggestion.name}</span>
+                  <span className="text-xs text-gray-400">{suggestion.category} • {suggestion.type}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="px-4 py-3 text-center text-gray-400 text-sm">
+              Loading more...
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap gap-4">
         <OnlyBtn onClick={() => router.push('/')} className="bg-white text-black">
