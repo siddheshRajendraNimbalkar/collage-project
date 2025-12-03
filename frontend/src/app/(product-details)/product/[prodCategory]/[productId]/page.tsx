@@ -147,8 +147,11 @@ const Page = () => {
 
            
                 setProduct(response.data.product);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching product:', error);
+                if (error.response?.status === 404) {
+                    console.log('Product not found - this might be because the product ID doesn\'t exist in the database');
+                }
             } finally {
                 setLoading(false);
             }
@@ -173,9 +176,20 @@ const Page = () => {
         return (
             <DarkGridBackground className="min-h-screen">
                 <div className="flex items-center justify-center h-screen">
-                    <Card className="bg-black/50 text-white border-none p-8">
+                    <Card className="bg-black/50 text-white border-none p-8 max-w-md">
                         <h2 className="text-xl font-semibold">Product not found</h2>
-                        <p className="mt-2">The requested product could not be found.</p>
+                        <p className="mt-2">The requested product could not be found. This might be because:</p>
+                        <ul className="mt-3 text-sm text-gray-300 list-disc list-inside">
+                            <li>The product ID is invalid</li>
+                            <li>The product has been removed</li>
+                            <li>No products exist in the database yet</li>
+                        </ul>
+                        <Button 
+                            onClick={() => router.push('/')}
+                            className="mt-4 bg-[#FF90E8] hover:bg-[#FF90E8]/80"
+                        >
+                            Go Home
+                        </Button>
                     </Card>
                 </div>
             </DarkGridBackground>

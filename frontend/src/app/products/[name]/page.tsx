@@ -17,7 +17,7 @@ export default function ProductsPage() {
       try {
         const response = await fetch(`http://localhost:9090/api/autocomplete?prefix=${encodeURIComponent(params.name as string)}&limit=50`);
         const data = await response.json();
-        const sameNameProducts = (data.items || []).filter(item => 
+        const sameNameProducts = (data.items || []).filter((item: any) => 
           item.name.toLowerCase() === (params.name as string).toLowerCase()
         );
         setProducts(sameNameProducts);
@@ -58,13 +58,19 @@ export default function ProductsPage() {
       <div className="min-h-screen bg-[#242423] text-white">
         <div className="container mx-auto px-8 py-12">
           <div className="mb-12">
+            <button 
+              onClick={() => router.back()}
+              className="text-[#FF90E8] hover:text-white mb-4 flex items-center gap-2"
+            >
+              ← Back
+            </button>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-[#FF90E8] to-white bg-clip-text text-transparent">
               {params.name}
             </h1>
             <p className="text-gray-400 mt-2">{products.length} products found</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-3 gap-8">
             {products.map((product) => (
               <div
                 key={product.id}
@@ -83,23 +89,23 @@ export default function ProductsPage() {
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-[#FF90E8] transition-colors">
+                  <h3 className="text-xl font-bold mb-2 p-2 bg-[#FFA541] rounded group-hover:text-white transition-colors">
                     {product.name}
                   </h3>
                   <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                    {product.description || "High-quality product with premium features and excellent craftsmanship."}
+                    Premium quality {product.category} with excellent craftsmanship and modern design.
                   </p>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl font-bold text-[#FF90E8]">
-                      ₹{product.price || "999"}
+                    <span className="text-2xl font-bold text-black bg-[#22C55E] px-3 py-1 rounded">
+                      ₹1,299
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="px-3 py-1 bg-[#FF90E8]/20 text-[#FF90E8] rounded-full">
+                    <span className="px-3 py-1 bg-yellow-500 text-center rounded-md text-black font-semibold">
                       {product.category}
                     </span>
                     <span className="text-gray-400">•</span>
-                    <span className="text-gray-400">{product.type}</span>
+                    <span className="px-3 py-1 bg-orange-500 text-center rounded-md text-black font-semibold">{product.type}</span>
                   </div>
                 </div>
               </div>

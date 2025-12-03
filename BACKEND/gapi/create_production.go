@@ -39,6 +39,15 @@ func (server *Server) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		return nil, status.Errorf(codes.InvalidArgument, "error in auth token: %v", err)
 	}
 
+	// Verify user exists before creating product
+	_, err = server.store.GetUserByID(ctx, token.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "user not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to verify user: %v", err)
+	}
+
 	productParams := db.CreateProductParams{
 		Name:        req.GetName(),
 		Description: req.GetDescription(),

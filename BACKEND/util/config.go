@@ -11,6 +11,7 @@ type Config struct {
 	ACCESSTOKENEXPIRESIN  string `mapstructure:"ACCESS_TOKEN_EXPIRES_IN"`
 	APIADDR               string `mapstructure:"APIADDR"`
 	RedisURL              string `mapstructure:"REDIS_URL"`
+	EnableGPT5            bool   `mapstructure:"ENABLE_GPT5"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -14,6 +14,17 @@ migrateup:
 
 migratedown:
 	migrate -path db/migrations -database "postgresql://root:password@localhost:5432/collage-project-backend?sslmode=disable" -verbose down
+
+migratedownall:
+	migrate -path db/migrations -database "postgresql://root:password@localhost:5432/collage-project-backend?sslmode=disable" -verbose down -all
+
+resetdb:
+	-$(MAKE) migratedownall
+	$(MAKE) migrateup
+
+clearredis:
+	# Requires redis-cli installed or use docker exec on your redis container
+	-redis-cli -u redis://localhost:6379 FLUSHALL || true
 	
 sqlc:
 	sqlc generate

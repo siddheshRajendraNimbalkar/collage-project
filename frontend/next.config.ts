@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  env: {
+    NEXT_PUBLIC_ENABLE_GPT5: 'true',
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
